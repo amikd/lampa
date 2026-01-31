@@ -405,7 +405,7 @@
 			},
 			NwsClientScript:
 				"https://amikd.github.io/lampa/nws-client-es5.js",
-			GithubCheck: "https://github.com/",
+			Check: "https://github.com/",
 			CorsCheckPath: "/cors/check"
 		},
 		Rch: {
