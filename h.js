@@ -1237,7 +1237,7 @@
 	var BWA_HOST = "rc.bwa.to";
 
 	var ONLINE_ICON =
-		'<svg viewBox="3 6 42 36" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="5" y="8" width="38" height="32" rx="2" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><path d="M13 8v32M5 16h8m-8 8h8m-8 8h8" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="28" cy="24" r="9" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="28" cy="24" r="3" fill="currentColor"/></svg>';
+		'<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 5v14l11-7z" fill="currentColor"/><rect x="3" y="3" width="4" height="18" rx="1" fill="currentColor"/><rect x="17" y="3" width="4" height="18" rx="1" fill="currentColor"/></svg>';
 
 	var DEFAULT_SOURCES = [
 		{ id: "rezka", name: "rezka", enabled: true },
@@ -2372,6 +2372,9 @@
 											}
 											playItem.quality["auto"] = playItem.url;
 										}
+										if (call.source_name && !playItem.source_name) {
+											playItem.source_name = call.source_name;
+										}
 										playItem.details =
 											call.details || playItem.details || "no details";
 										playItem.translate =
@@ -2848,6 +2851,7 @@
 								return;
 							}
 						}
+						var itemSourceName = item.source_name || "";
 						var process = function process(q) {
 							var qualityInt = parseInt(q);
 							var links = _this10.getSplitLinks(itemQuality[q]);
@@ -2867,12 +2871,26 @@
 									reserve: links.length > 1 ? links.slice(1) : [],
 									used: [],
 									error: [],
+									urlSources: {},
 									trigger: function trigger() {
 										_this10.setFlowsForQuality(Lampa.Player.playdata());
 									}
 								};
+								if (links[0]) {
+									qualities[q].urlSources[links[0]] = itemSourceName;
+								}
+								if (links.length > 1) {
+									for (var i = 1; i < links.length; i++) {
+										qualities[q].urlSources[links[i]] = itemSourceName;
+									}
+								}
 							} else {
 								qualities[q].reserve = qualities[q].reserve.concat(links);
+								for (var i = 0; i < links.length; i++) {
+									if (links[i] && !qualities[q].urlSources[links[i]]) {
+										qualities[q].urlSources[links[i]] = itemSourceName;
+									}
+								}
 							}
 						};
 						for (var q in itemQuality) {
@@ -3080,10 +3098,14 @@
 						var autoQuality = playData.quality["auto"];
 						var autoUrl = autoQuality.url || autoQuality;
 						if (typeof autoUrl === "string" && autoUrl) {
+							var sourceName = (autoQuality.urlSources && autoQuality.urlSources[autoUrl]) || "";
+							var subtitle = sourceName 
+								? sourceName + " • " + Lampa.Utils.shortText(autoUrl, 30)
+								: Lampa.Utils.shortText(autoUrl, 35);
 							var flows = [
 								{
 									title: "Поток 1",
-									subtitle: Lampa.Utils.shortText(autoUrl, 35),
+									subtitle: subtitle,
 									url: autoUrl,
 									selected: true
 								}
@@ -3097,6 +3119,7 @@
 
 					if (selectedQuality) {
 						var flows = [];
+						var urlSources = selectedQuality.urlSources || {};
 						var urls = [selectedQuality.url]
 							.concat(
 								selectedQuality.reserve.filter(function (u) {
@@ -3108,9 +3131,13 @@
 							});
 						if (urls.length > 0) {
 							urls.forEach(function (url, index) {
+								var sourceName = urlSources[url] || "";
+								var subtitle = sourceName 
+									? sourceName + " • " + Lampa.Utils.shortText(url, 30)
+									: Lampa.Utils.shortText(url, 35);
 								flows.push({
 									title: "Поток " + (index + 1),
-									subtitle: Lampa.Utils.shortText(url, 35),
+									subtitle: subtitle,
 									url: url,
 									selected: url == selectedQuality.url
 								});
