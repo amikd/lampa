@@ -394,21 +394,17 @@
             });
             filter.render().find('.filter--search').appendTo(filter.render().find('.torrent-filter'));
             filter.onSelect = function(type, a, b) {
-                if (type == 'filter') {
-                    // --- ОБРАБОТКА ВЫБОРА СЕРВЕРА ---
-                    if (a.stype == 'connection') {
-                        if (b.index === 0) connection_source = 'ab2024';
-                        else if (b.index === 1) connection_source = 'okeantv';
-                        else connection_source = 'ab2024';
-                        
-                        // Сброс и перезагрузка
-                        Defined.localhost = getHost();
-                        _this.createSource().then(function(){
-                             _this.search();
-                        });
-                        setTimeout(Lampa.Select.close, 10);
-                    } 
-                    else if (a.reset) {
+                if (type == 'connection') {
+                    Lampa.Select.close();
+                    if (a.source === 'ab2024') connection_source = 'ab2024';
+                    else if (a.source === 'okeantv') connection_source = 'okeantv';
+                    else connection_source = 'ab2024';
+                    Defined.localhost = getHost();
+                    _this.createSource().then(function() {
+                        _this.search();
+                    });
+                } else if (type == 'filter') {
+                    if (a.reset) {
                         clarificationSearchDelete();
 
                         _this.replaceChoice({
@@ -445,6 +441,7 @@
             };
             if (filter.addButtonBack) filter.addButtonBack();
             filter.render().find('.filter--sort span').text(Lampa.Lang.translate('lampac_balanser'));
+            filter.render().find('.filter--connection span').text('Сервер');
             scroll.body().addClass('torrent-list');
             files.appendFiles(scroll.render());
             files.appendHead(filter.render());
@@ -1170,16 +1167,6 @@
         this.filter = function(filter_items, choice) {
             var _this7 = this;
             var select = [];
-            var connectionItems = [
-                { title: 'AB2024', selected: connection_source === 'ab2024', index: 0 },
-                { title: 'OkeanTV', selected: connection_source === 'okeantv', index: 1 }
-            ];
-
-            select.push({
-                title: 'Сервер',
-                items: connectionItems,
-                stype: 'connection'
-            });
 
             var add = function add(type, title) {
                 var need = _this7.getChoice();
@@ -1209,6 +1196,18 @@
             if (filter_items.voice && filter_items.voice.length) add('voice', Lampa.Lang.translate('torrent_parser_voice'));
             if (filter_items.season && filter_items.season.length) add('season', Lampa.Lang.translate('torrent_serial_season'));
             filter.set('filter', select);
+            filter.set('connection', [
+                {
+                    title: 'AB2024',
+                    source: 'ab2024',
+                    selected: connection_source === 'ab2024'
+                },
+                {
+                    title: 'OkeanTV',
+                    source: 'okeantv',
+                    selected: connection_source === 'okeantv'
+                }
+            ]);
             filter.set('sort', filter_sources.map(function(e) {
                 return {
                     title: sources[e].name,
@@ -1237,6 +1236,7 @@
                 }
             }
             filter.chosen('filter', select);
+            filter.chosen('connection', [connection_source === 'okeantv' ? 'OkeanTV' : 'AB2024']);
             filter.chosen('sort', [sources[balanser].name]);
         };
         this.getEpisodes = function(season, call) {
