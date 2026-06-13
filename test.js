@@ -55,7 +55,6 @@
 
     var HDPOISK_PROXY_IP = decodeHidden('NjIuNjAuMTUyLjE2NA==');
     var HDPOISK_API_PROXY = 'http://' + HDPOISK_PROXY_IP + ':3000/api';
-    var HDPOISK_EXTRACT_PROXY = 'http://' + HDPOISK_PROXY_IP + ':3000/extract';
 
     // HD Poisk Config
     var HDPOISK_TOKEN = decodeHidden('NzIwZmJkZmQwNGY0Y2I1NDU3OWE5ODc1ZmQ5Mjg5');
@@ -819,40 +818,21 @@
 
             // --- ЛОГИКА ДЛЯ HD POISK (ОБРАЩЕНИЕ К НАШЕМУ ПРОКСИ) ---
             if (connection_source === 'hdpoisk') {
-                Lampa.Loading.start(function() {
-                    Lampa.Loading.stop();
-                    Lampa.Controller.toggle('content');
-                    network.clear();
+                var directHeaders = {
+                    Referer: HDPOISK_HOST_SLASH,
+                    Origin: HDPOISK_HOST_SLASH.replace(/\/$/, '')
+                };
+                call({
+                    url: file.url,
+                    headers: directHeaders,
+                    iframe: true,
+                    isdirect: true
+                }, {
+                    url: file.url,
+                    headers: directHeaders,
+                    iframe: true,
+                    isdirect: true
                 });
-                
-                var extractorQuery = [];
-                extractorQuery.push('url=' + encodeURIComponent(file.url));
-                extractorQuery.push('referer=' + encodeURIComponent(HDPOISK_HOST_SLASH));
-                extractorQuery.push('origin=' + encodeURIComponent(HDPOISK_HOST_SLASH.replace(/\/$/, '')));
-                extractorQuery.push('fetch_site=' + encodeURIComponent('cross-site'));
-                extractorQuery.push('fetch_mode=' + encodeURIComponent('navigate'));
-                extractorQuery.push('fetch_dest=' + encodeURIComponent('iframe'));
-                var extractorUrl = HDPOISK_EXTRACT_PROXY + '?' + extractorQuery.join('&');
-
-                network.silent(extractorUrl, function(json) {
-                    Lampa.Loading.stop();
-                    if (json && json.url) {
-                        if (!json.headers) json.headers = {};
-                        json.headers.Referer = HDPOISK_HOST_SLASH;
-                        json.headers.Origin = HDPOISK_HOST_SLASH.replace(/\/$/, '');
-                        call({ url: json.url, headers: json.headers }, json);
-                    } else {
-                        Lampa.Noty.show('Сервер не смог извлечь видео');
-                        call(false, {});
-                    }
-                }, function(a, c) {
-                    Lampa.Loading.stop();
-                    Lampa.Noty.show('Ошибка соединения с прокси-сервером');
-                    call(false, {});
-                }, false, {
-                    dataType: 'json'
-                });
-                
                 return;
             }
             // ---------------------------------------- 
