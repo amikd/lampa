@@ -72,6 +72,17 @@
         return SERVER_OPTIONS[0];
     }
 
+    function getServerDisplayName(key) {
+        var saved = Lampa.Storage.get('lampac_server_names', {});
+        return saved[key] || getServerOption(key).title;
+    }
+
+    function setServerDisplayName(key, name) {
+        var saved = Lampa.Storage.get('lampac_server_names', {});
+        saved[key] = name;
+        Lampa.Storage.set('lampac_server_names', saved);
+    }
+
     // Helper для получения текущего хоста
     function getHost() {
         return getServerOption(connection_source).host;
@@ -455,7 +466,7 @@
             );
 
             function getCurrentServerDisplay() {
-                return getServerOption(connection_source).title;
+                return getServerDisplayName(connection_source);
             }
 
             serverBtn.find('div').text(getCurrentServerDisplay());
@@ -463,7 +474,7 @@
                 var enabled = Lampa.Controller.enabled().name;
                 var items = SERVER_OPTIONS.map(function(s, i) {
                     return {
-                        title: s.title,
+                        title: getServerDisplayName(s.key),
                         index: i,
                         selected: connection_source === s.key
                     };
@@ -484,6 +495,20 @@
                         } else {
                             Lampa.Controller.toggle(enabled);
                         }
+                    }
+                });
+            });
+            serverBtn.on('hover:long-enter', function() {
+                Lampa.Input.edit({
+                    title: 'Переименовать сервер',
+                    value: getServerDisplayName(connection_source),
+                    placeholder: getServerOption(connection_source).title,
+                    nosave: true,
+                    free: true
+                }, function(new_value) {
+                    if (new_value) {
+                        setServerDisplayName(connection_source, new_value);
+                        serverBtn.find('div').text(getCurrentServerDisplay());
                     }
                 });
             });
