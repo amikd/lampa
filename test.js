@@ -498,7 +498,7 @@
                     }
                 });
             });
-            serverBtn.on('hover:long-enter', function() {
+            serverBtn.on('hover:long', function() {
                 Lampa.Input.edit({
                     title: 'Переименовать сервер',
                     value: getServerDisplayName(connection_source),
