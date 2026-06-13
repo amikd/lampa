@@ -471,7 +471,6 @@
 
             serverBtn.find('div').text(getCurrentServerDisplay());
             serverBtn.on('hover:enter', function() {
-                var enabled = Lampa.Controller.enabled().name;
                 var items = SERVER_OPTIONS.map(function(s, i) {
                     return {
                         title: getServerDisplayName(s.key),
@@ -482,18 +481,12 @@
                 Lampa.Select.show({
                     title: 'Сервер',
                     items: items,
-                    onBack: function() {
-                        Lampa.Controller.toggle(enabled);
-                    },
                     onSelect: function(item) {
                         if (!item.selected) {
                             connection_source = SERVER_OPTIONS[item.index].key;
                             Defined.localhost = getHost();
                             serverBtn.find('div').text(getCurrentServerDisplay());
-                            Lampa.Controller.toggle(enabled);
                             Lampa.Activity.replace();
-                        } else {
-                            Lampa.Controller.toggle(enabled);
                         }
                     }
                 });
