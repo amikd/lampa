@@ -52,12 +52,29 @@
     ];
     var current_ab_token_index = 0;
 
+    var SERVER_OPTIONS = [
+        {
+            key: 'ab2024',
+            title: 'AB2024',
+            host: AB_HOST_SLASH
+        },
+        {
+            key: 'okeantv',
+            title: 'OkeanTV',
+            host: OKEANTV_HOST_SLASH
+        }
+    ];
+
+    function getServerOption(key) {
+        for (var i = 0; i < SERVER_OPTIONS.length; i++) {
+            if (SERVER_OPTIONS[i].key === key) return SERVER_OPTIONS[i];
+        }
+        return SERVER_OPTIONS[0];
+    }
 
     // Helper для получения текущего хоста
     function getHost() {
-        if (connection_source === 'ab2024') return AB_HOST_SLASH;
-        if (connection_source === 'okeantv') return OKEANTV_HOST_SLASH;
-        return AB_HOST_SLASH;
+        return getServerOption(connection_source).host;
     }
 
     var Defined = {
@@ -396,9 +413,7 @@
             filter.onSelect = function(type, a, b) {
                 if (type == 'connection') {
                     Lampa.Select.close();
-                    if (a.source === 'ab2024') connection_source = 'ab2024';
-                    else if (a.source === 'okeantv') connection_source = 'okeantv';
-                    else connection_source = 'ab2024';
+                    connection_source = getServerOption(a.source).key;
                     Defined.localhost = getHost();
                     _this.createSource().then(function() {
                         _this.search();
@@ -1195,19 +1210,14 @@
             this.saveChoice(choice);
             if (filter_items.voice && filter_items.voice.length) add('voice', Lampa.Lang.translate('torrent_parser_voice'));
             if (filter_items.season && filter_items.season.length) add('season', Lampa.Lang.translate('torrent_serial_season'));
+            filter.set('connection', SERVER_OPTIONS.map(function(s) {
+                return {
+                    title: s.title,
+                    source: s.key,
+                    selected: connection_source === s.key
+                };
+            }));
             filter.set('filter', select);
-            filter.set('connection', [
-                {
-                    title: 'AB2024',
-                    source: 'ab2024',
-                    selected: connection_source === 'ab2024'
-                },
-                {
-                    title: 'OkeanTV',
-                    source: 'okeantv',
-                    selected: connection_source === 'okeantv'
-                }
-            ]);
             filter.set('sort', filter_sources.map(function(e) {
                 return {
                     title: sources[e].name,
@@ -1236,7 +1246,7 @@
                 }
             }
             filter.chosen('filter', select);
-            filter.chosen('connection', [connection_source === 'okeantv' ? 'OkeanTV' : 'AB2024']);
+            filter.chosen('connection', [getServerOption(connection_source).title]);
             filter.chosen('sort', [sources[balanser].name]);
         };
         this.getEpisodes = function(season, call) {
