@@ -597,10 +597,6 @@
             var query = [];
             var card_source = object.movie.source || 'tmdb'; 
             query.push('id=' + encodeURIComponent(object.movie.id));
-
-            var query = [];
-            var card_source = object.movie.source || 'tmdb'; 
-            query.push('id=' + encodeURIComponent(object.movie.id));
             if (object.movie.imdb_id) query.push('imdb_id=' + (object.movie.imdb_id || ''));
             if (object.movie.kinopoisk_id) query.push('kinopoisk_id=' + (object.movie.kinopoisk_id || ''));
             if (object.movie.tmdb_id) query.push('tmdb_id=' + (object.movie.tmdb_id || ''));
@@ -613,7 +609,6 @@
             query.push('clarification=' + (object.clarification ? 1 : 0));
             query.push('similar=' + (object.similar ? true : false));
             query.push('rchtype=' + (((window.rch_nws && window.rch_nws[hostkey]) ? window.rch_nws[hostkey].type : (window.rch && window.rch[hostkey]) ? window.rch[hostkey].type : '') || ''));
-            // Hardcoded cub_id
             query.push('cub_id=' + Lampa.Utils.hash('aru@gmail.com'));
             return url + (url.indexOf('?') >= 0 ? '&' : '?') + query.join('&');
         };
@@ -676,7 +671,7 @@
                     }
                 };
                 var fin = function fin(call) {
-                    network.timeout(3000);
+                    network.timeout(1500);
                     network.silent(account(url), function(json) {
                         life_wait_times++;
                         filter_sources = [];
