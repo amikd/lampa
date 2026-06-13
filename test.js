@@ -411,14 +411,7 @@
             });
             filter.render().find('.filter--search').appendTo(filter.render().find('.torrent-filter'));
             filter.onSelect = function(type, a, b) {
-                if (type == 'connection') {
-                    Lampa.Select.close();
-                    connection_source = getServerOption(a.source).key;
-                    Defined.localhost = getHost();
-                    _this.createSource().then(function() {
-                        _this.search();
-                    });
-                } else if (type == 'filter') {
+                if (type == 'filter') {
                     if (a.reset) {
                         clarificationSearchDelete();
 
@@ -456,7 +449,45 @@
             };
             if (filter.addButtonBack) filter.addButtonBack();
             filter.render().find('.filter--sort span').text(Lampa.Lang.translate('lampac_balanser'));
-            filter.render().find('.filter--connection span').text('Сервер');
+
+            var serverBtn = $(
+                '<div class="simple-button simple-button--filter selector filter--server"><span>Сервер</span><div></div></div>'
+            );
+
+            function getCurrentServerDisplay() {
+                return getServerOption(connection_source).title;
+            }
+
+            serverBtn.find('div').text(getCurrentServerDisplay());
+            serverBtn.on('hover:enter', function() {
+                var enabled = Lampa.Controller.enabled().name;
+                var items = SERVER_OPTIONS.map(function(s, i) {
+                    return {
+                        title: s.title,
+                        index: i,
+                        selected: connection_source === s.key
+                    };
+                });
+                Lampa.Select.show({
+                    title: 'Сервер',
+                    items: items,
+                    onBack: function() {
+                        Lampa.Controller.toggle(enabled);
+                    },
+                    onSelect: function(item) {
+                        if (!item.selected) {
+                            connection_source = SERVER_OPTIONS[item.index].key;
+                            Defined.localhost = getHost();
+                            serverBtn.find('div').text(getCurrentServerDisplay());
+                            Lampa.Controller.toggle(enabled);
+                            Lampa.Activity.replace();
+                        } else {
+                            Lampa.Controller.toggle(enabled);
+                        }
+                    }
+                });
+            });
+            filter.render().find('.filter--sort').before(serverBtn);
             scroll.body().addClass('torrent-list');
             files.appendFiles(scroll.render());
             files.appendHead(filter.render());
@@ -1210,13 +1241,6 @@
             this.saveChoice(choice);
             if (filter_items.voice && filter_items.voice.length) add('voice', Lampa.Lang.translate('torrent_parser_voice'));
             if (filter_items.season && filter_items.season.length) add('season', Lampa.Lang.translate('torrent_serial_season'));
-            filter.set('connection', SERVER_OPTIONS.map(function(s) {
-                return {
-                    title: s.title,
-                    source: s.key,
-                    selected: connection_source === s.key
-                };
-            }));
             filter.set('filter', select);
             filter.set('sort', filter_sources.map(function(e) {
                 return {
@@ -1246,7 +1270,6 @@
                 }
             }
             filter.chosen('filter', select);
-            filter.chosen('connection', [getServerOption(connection_source).title]);
             filter.chosen('sort', [sources[balanser].name]);
         };
         this.getEpisodes = function(season, call) {
