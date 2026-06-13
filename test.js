@@ -41,7 +41,6 @@
     var AB_HOST = decodeHidden('aHR0cHM6Ly9hYjIwMjQucnU=');
     var AB_HOST_SLASH = AB_HOST + '/';
     var OKEANTV_HOST_SLASH = decodeHidden('aHR0cDovLzE0OC4xMzUuMjA3LjE3NDoxMjM1OS8=');
-    var HDPOISK_HOST_SLASH = decodeHidden('aHR0cHM6Ly9oZHBvaXNrLnJ1Lw==');
 
     // AB2024
     var AB_UID = decodeHidden('NGV6dTgzN28=');
@@ -53,17 +52,11 @@
     ];
     var current_ab_token_index = 0;
 
-    var HDPOISK_PROXY_IP = decodeHidden('NjIuNjAuMTUyLjE2NA==');
-    var HDPOISK_API_PROXY = 'http://' + HDPOISK_PROXY_IP + ':3000/api';
-
-    // HD Poisk Config
-    var HDPOISK_TOKEN = decodeHidden('NzIwZmJkZmQwNGY0Y2I1NDU3OWE5ODc1ZmQ5Mjg5');
 
     // Helper для получения текущего хоста
     function getHost() {
         if (connection_source === 'ab2024') return AB_HOST_SLASH;
         if (connection_source === 'okeantv') return OKEANTV_HOST_SLASH;
-        if (connection_source === 'hdpoisk') return HDPOISK_HOST_SLASH;
         return AB_HOST_SLASH;
     }
 
@@ -292,20 +285,15 @@
                 url = Lampa.Utils.addUrlComponent(url, 'uid=' + decodeHidden('Z3Vlc3Q='));
             }
         }
-        else if (connection_source === 'hdpoisk') {
-            // Логика HD Poisk - API URL формируется в requestParams
-        }
 
         // Общие параметры
-        if (connection_source !== 'hdpoisk') { 
-            if (url.indexOf('token=') == -1) {
-                var token = '';
-                if (token != '') url = Lampa.Utils.addUrlComponent(url, 'token=');
-            }
-            if (url.indexOf('nws_id=') == -1 && window.rch_nws && window.rch_nws[hostkey]) {
-                var nws_id = window.rch_nws[hostkey].connectionId || Lampa.Storage.get('lampac_nws_id', '');
-                if (nws_id) url = Lampa.Utils.addUrlComponent(url, 'nws_id=' + encodeURIComponent(nws_id));
-            }
+        if (url.indexOf('token=') == -1) {
+            var token = '';
+            if (token != '') url = Lampa.Utils.addUrlComponent(url, 'token=');
+        }
+        if (url.indexOf('nws_id=') == -1 && window.rch_nws && window.rch_nws[hostkey]) {
+            var nws_id = window.rch_nws[hostkey].connectionId || Lampa.Storage.get('lampac_nws_id', '');
+            if (nws_id) url = Lampa.Utils.addUrlComponent(url, 'nws_id=' + encodeURIComponent(nws_id));
         }
         return url;
     }
@@ -346,16 +334,12 @@
         Defined.localhost = getHost();
 
         if (balansers_with_search == undefined) {
-            if (connection_source !== 'hdpoisk') {
-                network.timeout(10000);
-                network.silent(account(Defined.localhost + 'lite/withsearch'), function(json) {
-                    balansers_with_search = json;
-                }, function() {
-                    balansers_with_search = [];
-                });
-            } else {
-                 balansers_with_search = [];
-            }
+            network.timeout(10000);
+            network.silent(account(Defined.localhost + 'lite/withsearch'), function(json) {
+                balansers_with_search = json;
+            }, function() {
+                balansers_with_search = [];
+            });
         }
 
         function balanserName(j) {
@@ -415,7 +399,6 @@
                     if (a.stype == 'connection') {
                         if (b.index === 0) connection_source = 'ab2024';
                         else if (b.index === 1) connection_source = 'okeantv';
-                        else if (b.index === 2) connection_source = 'hdpoisk';
                         else connection_source = 'ab2024';
                         
                         // Сброс и перезагрузка
@@ -518,15 +501,8 @@
                     if (object.movie.kinopoisk_id) query.push('kinopoisk_id=' + (object.movie.kinopoisk_id || ''));
                     var url = Defined.localhost + 'externalids?' + query.join('&');
                     
-                    if (connection_source === 'hdpoisk') {
-                         resolve();
-                         return;
-                    }
-                    
                     var headers = {};
-                    if(connection_source !== 'hdpoisk') {
-                         headers['X-Kit-AesGcm'] = Lampa.Storage.get('aesgcmkey', '');
-                    }
+                    headers['X-Kit-AesGcm'] = Lampa.Storage.get('aesgcmkey', '');
 
                     network.timeout(10000);
                     network.silent(account(url), function(json) {
@@ -557,20 +533,6 @@
             Lampa.Activity.replace();
         };
         this.requestParams = function(url) {
-            if (connection_source === 'hdpoisk') {
-                var hdpoiskQuery = [];
-                hdpoiskQuery.push('kp=' + encodeURIComponent(object.movie.kinopoisk_id || object.movie.id || ''));
-                hdpoiskQuery.push('id=' + encodeURIComponent(object.movie.id || ''));
-                if (object.movie.imdb_id) hdpoiskQuery.push('imdb_id=' + encodeURIComponent(object.movie.imdb_id));
-                if (object.movie.kinopoisk_id) hdpoiskQuery.push('kinopoisk_id=' + encodeURIComponent(object.movie.kinopoisk_id));
-                if (object.movie.tmdb_id) hdpoiskQuery.push('tmdb_id=' + encodeURIComponent(object.movie.tmdb_id));
-                hdpoiskQuery.push('title=' + encodeURIComponent(object.clarification ? object.search : object.movie.title || object.movie.name || ''));
-                hdpoiskQuery.push('original_title=' + encodeURIComponent(object.movie.original_title || object.movie.original_name || ''));
-                hdpoiskQuery.push('year=' + encodeURIComponent(((object.movie.release_date || object.movie.first_air_date || '0000') + '').slice(0, 4)));
-                hdpoiskQuery.push('serial=' + encodeURIComponent(object.movie.name ? 1 : 0));
-                return HDPOISK_API_PROXY + '?' + hdpoiskQuery.join('&');
-            }
-
             var query = [];
             var card_source = object.movie.source || 'tmdb'; 
             query.push('id=' + encodeURIComponent(object.movie.id));
@@ -706,12 +668,6 @@
         // ВОЗВРАЩАЕМ ЗАПРОС LITE/EVENTS
         this.createSource = function() {
             var _this4 = this;
-            if (connection_source === 'hdpoisk') {
-                return new Promise(function(resolve, reject){
-                     _this4.startSource([{name: 'HDPoisk', url: 'hdpoisk_api', show: true}]).then(resolve);
-                });
-            }
-
             return new Promise(function(resolve, reject) {
                 var url = _this4.requestParams(Defined.localhost + 'lite/events?life=true');
                 network.timeout(15000);
@@ -760,9 +716,7 @@
                 number_of_requests++;
                 if (number_of_requests < 10) {
                     var headers = {};
-                    if (connection_source !== 'hdpoisk') {
-                         headers['X-Kit-AesGcm'] = Lampa.Storage.get('aesgcmkey', '');
-                    }
+                    headers['X-Kit-AesGcm'] = Lampa.Storage.get('aesgcmkey', '');
 
                     network["native"](account(url), _this.parse.bind(_this), function(e) {
                         _this.doesNotAnswer.bind(_this)(e);
@@ -817,25 +771,6 @@
             var _this = this;
 
             // --- ЛОГИКА ДЛЯ HD POISK (ОБРАЩЕНИЕ К НАШЕМУ ПРОКСИ) ---
-            if (connection_source === 'hdpoisk') {
-                var directHeaders = {
-                    Referer: HDPOISK_HOST_SLASH,
-                    Origin: HDPOISK_HOST_SLASH.replace(/\/$/, '')
-                };
-                call({
-                    url: file.url,
-                    headers: directHeaders,
-                    iframe: true,
-                    isdirect: true
-                }, {
-                    url: file.url,
-                    headers: directHeaders,
-                    iframe: true,
-                    isdirect: true
-                });
-                return;
-            }
-            // ---------------------------------------- 
             if (Lampa.Storage.field('player') !== 'inner' && file.stream && Lampa.Platform.is('apple')) {
                 var newfile = Lampa.Arrays.clone(file);
                 newfile.method = 'play';
@@ -852,7 +787,6 @@
                 var headers = {
                     'X-Kit-AesGcm': Lampa.Storage.get('aesgcmkey', '')
                 };
-                if(connection_source === 'hdpoisk') headers = {};
 
                 network["native"](account(file.url), function(json) {
                     if (json.rch) {
@@ -1033,64 +967,9 @@
             if (Lampa.Arrays.isObject(str) && str.rch) json = str;
             if (json.rch) return this.rch(json);
 
-            // --- ПАРСЕР ДЛЯ HD POISK ---
-            if (connection_source === 'hdpoisk') {
-                this.activity.loader(false);
-                if (json.data) {
-                    var items = [];
-                    if (json.data.seasons) {
-                        for (var s in json.data.seasons) {
-                            var season = json.data.seasons[s];
-                            if (season.episodes) {
-                                for (var e in season.episodes) {
-                                    var episode = season.episodes[e];
-                                    var item = {
-                                        season: parseInt(season.season),
-                                        episode: parseInt(episode.episode),
-                                        title: 'S' + season.season + 'E' + episode.episode,
-                                        text: 'S' + season.season + 'E' + episode.episode,
-                                        url: episode.iframe,
-                                        method: 'call',
-                                        voice_name: 'Original',
-                                        quality: {}
-                                    };
-                                    items.push(item);
-                                }
-                            }
-                        }
-                    } 
-                    else if (json.data.iframe) {
-                        var item = {
-                            title: json.data.name || object.movie.title,
-                            text: object.movie.title,
-                            url: json.data.iframe,
-                            method: 'call',
-                            quality: {}
-                        };
-                        items.push(item);
-                    }
-
-                    if (items.length) {
-                        items.sort(function(a, b) {
-                            if (a.season > b.season) return 1;
-                            if (a.season < b.season) return -1;
-                            if (a.episode > b.episode) return 1;
-                            if (a.episode < b.episode) return -1;
-                            return 0;
-                        });
-                        this.display(items);
-                    } else {
-                        this.empty();
-                    }
-                } else {
-                    this.empty();
-                }
-                return;
-            }
-            // -----------------------------
-
             try {
                 var items = this.parseJsonDate(str, '.videos__item');
+
                 var buttons = this.parseJsonDate(str, '.videos__button');
                 if (items.length == 1 && items[0].method == 'link' && !items[0].similar) {
                     filter_find.season = items.map(function(s) {
@@ -1291,21 +1170,14 @@
         this.filter = function(filter_items, choice) {
             var _this7 = this;
             var select = [];
-            
-            // --- ДОБАВЛЕНИЕ ВЫБОРА СЕРВЕРА ---
-            var current_sub = '';
-            if (connection_source === 'ab2024') current_sub = AB_HOST;
-            else if (connection_source === 'okeantv') current_sub = OKEANTV_HOST_SLASH.replace(/\/$/, '');
-            else current_sub = HDPOISK_HOST_SLASH.replace(/\/$/, '');
+            var connectionItems = [
+                { title: 'AB2024', selected: connection_source === 'ab2024', index: 0 },
+                { title: 'OkeanTV', selected: connection_source === 'okeantv', index: 1 }
+            ];
 
             select.push({
                 title: 'Сервер',
-                subtitle: current_sub,
-                items: [
-                    { title: 'AB2024', selected: connection_source === 'ab2024', index: 0 },
-                    { title: 'OkeanTV', selected: connection_source === 'okeantv', index: 1 },
-                    { title: 'HDPoisk', selected: connection_source === 'hdpoisk', index: 2 }
-                ],
+                items: connectionItems,
                 stype: 'connection'
             });
 
