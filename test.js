@@ -53,6 +53,10 @@
     ];
     var current_ab_token_index = 0;
 
+    var HDPOISK_PROXY_IP = decodeHidden('NjIuNjAuMTUyLjE2NA==');
+    var HDPOISK_API_PROXY = 'http://' + HDPOISK_PROXY_IP + ':3000/api';
+    var HDPOISK_EXTRACT_PROXY = 'http://' + HDPOISK_PROXY_IP + ':3000/extract';
+
     // HD Poisk Config
     var HDPOISK_TOKEN = decodeHidden('NzIwZmJkZmQwNGY0Y2I1NDU3OWE5ODc1ZmQ5Mjg5');
 
@@ -554,10 +558,18 @@
             Lampa.Activity.replace();
         };
         this.requestParams = function(url) {
-            // ДЛЯ HD POISK НАПРАВЛЯЕМ ЗАПРОС API ЧЕРЕЗ НАШ СЕРВЕР
             if (connection_source === 'hdpoisk') {
-                var myVpsIp = '108.165.164.64';
-                return 'http://' + myVpsIp + ':3000/api?kp=' + (object.movie.kinopoisk_id || object.movie.id);
+                var hdpoiskQuery = [];
+                hdpoiskQuery.push('kp=' + encodeURIComponent(object.movie.kinopoisk_id || object.movie.id || ''));
+                hdpoiskQuery.push('id=' + encodeURIComponent(object.movie.id || ''));
+                if (object.movie.imdb_id) hdpoiskQuery.push('imdb_id=' + encodeURIComponent(object.movie.imdb_id));
+                if (object.movie.kinopoisk_id) hdpoiskQuery.push('kinopoisk_id=' + encodeURIComponent(object.movie.kinopoisk_id));
+                if (object.movie.tmdb_id) hdpoiskQuery.push('tmdb_id=' + encodeURIComponent(object.movie.tmdb_id));
+                hdpoiskQuery.push('title=' + encodeURIComponent(object.clarification ? object.search : object.movie.title || object.movie.name || ''));
+                hdpoiskQuery.push('original_title=' + encodeURIComponent(object.movie.original_title || object.movie.original_name || ''));
+                hdpoiskQuery.push('year=' + encodeURIComponent(((object.movie.release_date || object.movie.first_air_date || '0000') + '').slice(0, 4)));
+                hdpoiskQuery.push('serial=' + encodeURIComponent(object.movie.name ? 1 : 0));
+                return HDPOISK_API_PROXY + '?' + hdpoiskQuery.join('&');
             }
 
             var query = [];
@@ -813,14 +825,22 @@
                     network.clear();
                 });
                 
-                // ЗАМЕНИ НА IP ТВОЕГО VPS! Порт 3000 мы задали в server.js
-                var myVpsIp = decodeHidden('NjIuNjAuMTUyLjE2NA=='); 
-                var extractorUrl = 'http://' + myVpsIp + ':3000/extract?url=' + encodeURIComponent(file.url);
+                var extractorQuery = [];
+                extractorQuery.push('url=' + encodeURIComponent(file.url));
+                extractorQuery.push('referer=' + encodeURIComponent(HDPOISK_HOST_SLASH));
+                extractorQuery.push('origin=' + encodeURIComponent(HDPOISK_HOST_SLASH.replace(/\/$/, '')));
+                extractorQuery.push('fetch_site=' + encodeURIComponent('cross-site'));
+                extractorQuery.push('fetch_mode=' + encodeURIComponent('navigate'));
+                extractorQuery.push('fetch_dest=' + encodeURIComponent('iframe'));
+                var extractorUrl = HDPOISK_EXTRACT_PROXY + '?' + extractorQuery.join('&');
 
                 network.silent(extractorUrl, function(json) {
                     Lampa.Loading.stop();
                     if (json && json.url) {
-                        call({ url: json.url }, {});
+                        if (!json.headers) json.headers = {};
+                        json.headers.Referer = HDPOISK_HOST_SLASH;
+                        json.headers.Origin = HDPOISK_HOST_SLASH.replace(/\/$/, '');
+                        call({ url: json.url, headers: json.headers }, json);
                     } else {
                         Lampa.Noty.show('Сервер не смог извлечь видео');
                         call(false, {});
