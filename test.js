@@ -7,10 +7,8 @@
         }
     }
 
-    // --- НАСТРОЙКИ СЕРВЕРОВ ---
     var connection_source = 'ab2024';
 
-    // Численная оценка качества (4K/UHD считаются как 2160)
     function qualityScore(k) {
         var lower = String(k).toLowerCase();
         if (lower.indexOf('4k') !== -1 || lower.indexOf('uhd') !== -1) return 2160;
@@ -18,7 +16,6 @@
         return isNaN(n) ? 0 : n;
     }
 
-    // Фильтр качества: скрыть всё ниже 1080p из списка качеств плеера и источников
     function filterMinQuality(qualityObj) {
         if (!qualityObj || typeof qualityObj !== 'object' || Array.isArray(qualityObj)) return qualityObj;
         Object.keys(qualityObj).forEach(function(k) {
@@ -27,7 +24,6 @@
         return qualityObj;
     }
 
-    // Ключ с самым высоким качеством для автовыбора 4K -> 1440 -> 1080
     function highestQualityKey(qualityObj) {
         if (!qualityObj || typeof qualityObj !== 'object') return null;
         var keys = Object.keys(qualityObj);
@@ -42,7 +38,6 @@
     var AB_HOST_SLASH = AB_HOST + '/';
     var OKEANTV_HOST_SLASH = decodeHidden('aHR0cDovLzE0OC4xMzUuMjA3LjE3NDoxMjM1OS8=');
 
-    // AB2024
     var AB_UID = decodeHidden('NGV6dTgzN28=');
     var AB_TOKENS = [
         decodeHidden('0LzQsNGALjMx'),
@@ -51,6 +46,15 @@
         decodeHidden('0LjRjtC90Yw5OQ==')
     ];
     var current_ab_token_index = 0;
+
+    function rotateAbToken() {
+        if (connection_source !== 'ab2024') return false;
+        if (current_ab_token_index < AB_TOKENS.length - 1) {
+            current_ab_token_index++;
+            return true;
+        }
+        return false;
+    }
 
     var SERVER_OPTIONS = [
         {
@@ -83,7 +87,6 @@
         Lampa.Storage.set('lampac_server_names', saved);
     }
 
-    // Helper для получения текущего хоста
     function getHost() {
         return getServerOption(connection_source).host;
     }
@@ -294,9 +297,7 @@
     function account(url) {
         url = url + '';
         
-        // --- АВТОРИЗАЦИЯ НА ОСНОВЕ ВЫБРАННОГО СЕРВЕРА ---
         if (connection_source === 'ab2024') {
-            // Логика AB2024
             if (url.indexOf('uid=') === -1) {
                 url = Lampa.Utils.addUrlComponent(url, 'uid=' + AB_UID);
             }
@@ -308,13 +309,11 @@
             }
         } 
         else if (connection_source === 'okeantv') {
-            // Логика OkeanTV
             if (url.indexOf('uid=') === -1) {
                 url = Lampa.Utils.addUrlComponent(url, 'uid=' + decodeHidden('Z3Vlc3Q='));
             }
         }
 
-        // Общие параметры
         if (url.indexOf('token=') == -1) {
             var token = '';
             if (token != '') url = Lampa.Utils.addUrlComponent(url, 'token=');
@@ -358,7 +357,6 @@
             voice: []
         };
 
-        // Обновляем Defined.localhost при инициализации компонента
         Defined.localhost = getHost();
 
         if (balansers_with_search == undefined) {
@@ -653,8 +651,12 @@
             return new Promise(function(resolve, reject) {
                 var url = _this3.requestParams(Defined.localhost + 'lifeevents?memkey=' + (_this3.memkey || ''));
                 var red = false;
+                var invalid_response_times = 0;
                 var gou = function gou(json, any) {
-                    if (json.accsdb) return reject(json);
+                    if (json && json.accsdb) return reject(json);
+                    if (!json || !Array.isArray(json.online)) {
+                        return reject(json || new Error('lifeevents: online is missing'));
+                    }
                     var last_balanser = _this3.getLastChoiceBalanser();
                     if (!red) {
                         var _filter = json.online.filter(function(c) {
@@ -674,9 +676,24 @@
                     network.timeout(1500);
                     network.silent(account(url), function(json) {
                         life_wait_times++;
+                        if (!json || !Array.isArray(json.online)) {
+                            if (json && json.accsdb) {
+                                reject(json);
+                                return;
+                            }
+                            invalid_response_times++;
+                            if (invalid_response_times >= 3) {
+                                reject(json || new Error('lifeevents: invalid response'));
+                            } else {
+                                life_wait_timer = setTimeout(fin, 500);
+                            }
+                            return;
+                        }
+                        invalid_response_times = 0;
                         filter_sources = [];
                         sources = {};
                         json.online.forEach(function(j) {
+                            if (!j || !j.name || !j.url) return;
                             var name = balanserName(j);
                             sources[name] = {
                                 url: j.url,
@@ -721,30 +738,50 @@
                 fin();
             });
         };
-        // ВОЗВРАЩАЕМ ЗАПРОС LITE/EVENTS
         this.createSource = function() {
             var _this4 = this;
             return new Promise(function(resolve, reject) {
-                var url = _this4.requestParams(Defined.localhost + 'lite/events?life=true');
-                network.timeout(15000);
-                network.silent(account(url), function(json) {
-                    if (json.accsdb) return reject(json);
-                    if (json.life) {
-                        _this4.memkey = json.memkey;
-                        if (json.title) {
-                            if (object.movie.name) object.movie.name = json.title;
-                            if (object.movie.title) object.movie.title = json.title;
-                        }
-                        filter.render().find('.filter--sort').append('<span class="lampac-balanser-loader" style="width: 1.2em; height: 1.2em; margin-top: 0; background: url(./img/loader.svg) no-repeat 50% 50%; background-size: contain; margin-left: 0.5em"></span>');
-                        _this4.lifeSource().then(_this4.startSource).then(resolve)["catch"](reject);
+                function retry(error) {
+                    if (rotateAbToken()) {
+                        life_wait_times = 0;
+                        clearTimeout(life_wait_timer);
+                        filter.render().find('.lampac-balanser-loader').remove();
+                        _this4.memkey = '';
+                        attempt();
                     } else {
-                        _this4.startSource(json).then(resolve)["catch"](reject);
+                        reject(error);
                     }
-                }, reject, false, {
-                    headers: {
-                        'X-Kit-AesGcm': Lampa.Storage.get('aesgcmkey', '')
-                    }
-                });
+                }
+
+                function attempt() {
+                    var url = _this4.requestParams(Defined.localhost + 'lite/events?life=true');
+                    network.timeout(15000);
+                    network.silent(account(url), function(json) {
+                        if (json && json.accsdb) {
+                            retry(json);
+                            return;
+                        }
+                        var sourcePromise;
+                        if (json.life) {
+                            _this4.memkey = json.memkey;
+                            if (json.title) {
+                                if (object.movie.name) object.movie.name = json.title;
+                                if (object.movie.title) object.movie.title = json.title;
+                            }
+                            filter.render().find('.filter--sort').append('<span class="lampac-balanser-loader" style="width: 1.2em; height: 1.2em; margin-top: 0; background: url(./img/loader.svg) no-repeat 50% 50%; background-size: contain; margin-left: 0.5em"></span>');
+                            sourcePromise = _this4.lifeSource().then(_this4.startSource);
+                        } else {
+                            sourcePromise = _this4.startSource(json);
+                        }
+                        sourcePromise.then(resolve)["catch"](retry);
+                    }, retry, false, {
+                        headers: {
+                            'X-Kit-AesGcm': Lampa.Storage.get('aesgcmkey', '')
+                        }
+                    });
+                }
+
+                attempt();
             });
         };
         /**
@@ -774,8 +811,16 @@
                     var headers = {};
                     headers['X-Kit-AesGcm'] = Lampa.Storage.get('aesgcmkey', '');
 
-                    network["native"](account(url), _this.parse.bind(_this), function(e) {
-                        _this.doesNotAnswer.bind(_this)(e);
+                    network["native"](account(url), function(response) {
+                        var responseJson = Lampa.Arrays.isObject(response) ? response : Lampa.Arrays.decodeJson(response, {});
+                        if (responseJson && responseJson.accsdb && rotateAbToken()) {
+                            _this.request(url);
+                            return;
+                        }
+                        _this.parse(response);
+                    }, function(e) {
+                        if (rotateAbToken()) _this.request(url);
+                        else _this.doesNotAnswer(e);
                     }, false, {
                         dataType: 'text',
                         headers: headers
@@ -826,7 +871,6 @@
         this.getFileUrl = function(file, call, waiting_rch) {
             var _this = this;
 
-            // --- ЛОГИКА ДЛЯ HD POISK (ОБРАЩЕНИЕ К НАШЕМУ ПРОКСИ) ---
             if (Lampa.Storage.field('player') !== 'inner' && file.stream && Lampa.Platform.is('apple')) {
                 var newfile = Lampa.Arrays.clone(file);
                 newfile.method = 'play';
@@ -893,15 +937,12 @@
             }
         };
         this.setDefaultQuality = function(data) {
-            // Убираем все варианты качества ниже 1080p
             filterMinQuality(data.quality);
             if (Lampa.Arrays.getKeys(data.quality).length) {
-                // Чистим возможные дубли вида " or "
                 for (var qq in data.quality) {
                     if (data.quality[qq].indexOf(" or ") !== -1)
                         data.quality[qq] = data.quality[qq].split(" or ")[0];
                 }
-                // Автоматически выбираем самое высокое качество
                 var bestKey = highestQualityKey(data.quality);
                 if (bestKey) {
                     data.url = data.quality[bestKey];
@@ -1283,7 +1324,7 @@
                 }
             }
             filter.chosen('filter', select);
-            filter.chosen('sort', [sources[balanser].name]);
+            filter.chosen('sort', [sources[balanser] ? sources[balanser].name : (balanser || '')]);
         };
         this.getEpisodes = function(season, call) {
             var episodes = [];
@@ -1343,8 +1384,6 @@
                 var fully = window.innerWidth > 480;
                 var scroll_to_element = false;
                 var scroll_to_mark = false;
-                // Для фильмов сортируем источники по максимальному доступному качеству.
-                // Для сериалов сохраняем оригинальный порядок эпизодов.
                 if (!serial) {
                     items.sort(function(a, b) {
                         function maxScore(el) {
@@ -1367,7 +1406,6 @@
                     var episode_last = choice.episodes_view[element.season];
                     var voice_name = choice.voice_name || (filter_find.voice[0] ? filter_find.voice[0].title : false) || element.voice_name || (serial ? 'Неизвестно' : element.text) || 'Неизвестно';
                     if (element.quality) {
-                        // Убираем варианты ниже 1080p и из подписи источника
                         filterMinQuality(element.quality);
                         element.qualitys = element.quality;
                         element.quality = Lampa.Arrays.getKeys(element.quality)[0];
@@ -1378,7 +1416,6 @@
                         quality: '',
                         time: Lampa.Utils.secondsToTime((episode ? episode.runtime : object.movie.runtime) * 60, true)
                     });
-                    // Показываем максимальное доступное качество как метку источника
                     if (element.qualitys && typeof element.qualitys === 'object') {
                         var keys = Object.keys(element.qualitys);
                         if (keys.length) {
@@ -1726,7 +1763,8 @@
             var html = Lampa.Template.get('lampac_does_not_answer', {});
             html.find('.online-empty__buttons').remove();
             html.find('.online-empty__title').text(Lampa.Lang.translate('title_error'));
-            html.find('.online-empty__time').text(er && er.accsdb ? er.msg : Lampa.Lang.translate('lampac_does_not_answer_text').replace('{balanser}', balanser[balanser].name));
+            var current_balanser = sources[balanser] ? sources[balanser].name : (balanser || getServerDisplayName(connection_source));
+            html.find('.online-empty__time').text(er && er.accsdb ? er.msg : Lampa.Lang.translate('lampac_does_not_answer_text').replace('{balanser}', current_balanser));
             scroll.clear();
             scroll.append(html);
             this.loading(false);
