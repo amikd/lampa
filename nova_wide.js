@@ -2522,6 +2522,8 @@
     if (voice) hint.push(voice);
     ui.hero.find('.nova-hero__hint').text(hint.join(' \u00b7 '));
 
+    wideHeroTune();
+
     var season = serial && !nav && items.length > 1 ? seasonSeen(items) : null;
 
     var season_line = ui.hero.find('.nova-hero__season');
@@ -4242,7 +4244,7 @@
   var WIDE_META_KEY = 'nova_wide_meta';
 
   var WIDE_OWN = {
-    nova_wide_seasons: { ru: 'Сезоны', uk: 'Сезони', en: 'Seasons' },
+    nova_wide_seasons: { ru: 'Сезон', uk: 'Сезон', en: 'Season' },
     nova_wide_parts: { ru: 'Части', uk: 'Частини', en: 'Parts' },
     nova_wide_voices: { ru: 'Перевод', uk: 'Переклад', en: 'Audio' },
     nova_wide_ep_one: { ru: '{count} эпизод', uk: '{count} епізод', en: '{count} episode' },
@@ -4256,11 +4258,11 @@
     nova_wide_look_grid: { ru: 'Вертикальный', uk: 'Вертикальний', en: 'Vertical' },
     nova_wide_reset: { ru: 'Сбросить фильтр', uk: 'Скинути фільтр', en: 'Reset filter' },
     nova_wide_set_mode: { ru: 'Широкий макет', uk: 'Широкий макет', en: 'Wide layout' },
-    nova_wide_set_mode_descr: { ru: 'Шапка слева, сезоны и переводы сразу видны справа', uk: 'Шапка ліворуч, сезони та переклади одразу справа', en: 'Header on the left, seasons and audio always visible on the right' },
+    nova_wide_set_mode_descr: { ru: 'Шапка слева, сезоны и переводы сразу справа', uk: 'Шапка ліворуч, сезони та переклади одразу справа', en: 'Header on the left, seasons and audio always visible on the right' },
     nova_wide_mode_wide: { ru: 'Широкий', uk: 'Широкий', en: 'Wide' },
     nova_wide_mode_classic: { ru: 'Обычный', uk: 'Звичайний', en: 'Classic' },
     nova_wide_set_look: { ru: 'Лента серий', uk: 'Лента серій', en: 'Episode strip' },
-    nova_wide_set_look_descr: { ru: 'Горизонтальная лента или вертикальная сетка кадров', uk: 'Горизонтальна лента або вертикальна сітка', en: 'Horizontal strip or vertical grid of stills' },
+    nova_wide_set_look_descr: { ru: 'Вертикальная сетка по умолчанию, горизонтальная по переключателю', uk: 'Вертикальна сітка за замовчуванням, горизонтальна за перемикачем', en: 'Vertical grid by default, horizontal by toggle' },
     nova_wide_set_order: { ru: 'Порядок серий', uk: 'Порядок серій', en: 'Episode order' },
     nova_wide_set_order_descr: { ru: 'Обратный удобен для сериалов, которые ещё выходят', uk: 'Зворотний зручний для серіалів, що ще виходять', en: 'Reversed suits shows that are still airing' },
     nova_wide_set_meta: { ru: 'Описания серий', uk: 'Описи серій', en: 'Episode details' },
@@ -4269,28 +4271,22 @@
 
   for (var wide_key in WIDE_OWN) OWN[wide_key] = WIDE_OWN[wide_key];
 
-  try {
-    Lampa.Lang.add(WIDE_OWN);
-  } catch (e) {}
+  try { Lampa.Lang.add(WIDE_OWN); } catch (e) {}
 
   function wideOn() { return get(WIDE_MODE_KEY, 'wide') !== 'classic'; }
   function wideRow() { return get(WIDE_LAYOUT_KEY, 'grid') === 'row'; }
   function wideReverse() { return get(WIDE_ORDER_KEY, 'straight') === 'reverse'; }
   function wideMeta() { return get(WIDE_META_KEY, true) !== false; }
 
-  var WIDE_MONTHS = ['Января', 'Февраля', 'Марта', 'Апреля', 'Мая', 'Июня',
-    'Июля', 'Августа', 'Сентября', 'Октября', 'Ноября', 'Декабря'];
-
+  var WIDE_MONTHS = ['Января', 'Февраля', 'Марта', 'Апреля', 'Мая', 'Июня', 'Июля', 'Августа', 'Сентября', 'Октября', 'Ноября', 'Декабря'];
   var WIDE_TAG_MAP = {
     HEVC: 'HEVC', H265: 'HEVC', 'H.265': 'HEVC', X265: 'HEVC',
     AVC: 'AVC', H264: 'AVC', 'H.264': 'AVC', X264: 'AVC',
     AV1: 'AV1', VP9: 'VP9',
     AAC: 'AAC', AC3: 'AC3', EAC3: 'EAC3', 'DD+': 'EAC3',
     'DTS-HD': 'DTS-HD', DTS: 'DTS', FLAC: 'FLAC', OPUS: 'OPUS', MP3: 'MP3',
-    ATMOS: 'Atmos', 'HDR10+': 'HDR10+', HDR10: 'HDR10', HDR: 'HDR',
-    SDR: 'SDR', '10BIT': '10bit'
+    ATMOS: 'Atmos', 'HDR10+': 'HDR10+', HDR10: 'HDR10', HDR: 'HDR', SDR: 'SDR', '10BIT': '10bit'
   };
-
   var WIDE_TAG_FIND = /(HDR10\+|HDR10|HDR|DTS-HD|DTS|H\.?26[45]|x26[45]|HEVC|AVC|AV1|VP9|EAC3|AC3|DD\+|AAC|FLAC|OPUS|MP3|Atmos|SDR|10 ?bit)/gi;
   var WIDE_CHANNELS = /(\d)(?:\.0)?\s*(?:ch\b|канал[аов]*)/i;
 
@@ -4321,7 +4317,6 @@
   function wideSeconds(value) {
     var parts = String(value == null ? '' : value).trim().split(':');
     var num = function (at) { return parseInt(parts[at], 10) || 0; };
-
     if (parts.length === 3) return num(0) * 3600 + num(1) * 60 + num(2);
     if (parts.length === 2) return num(0) * 60 + num(1);
     return num(0) * 60;
@@ -4347,10 +4342,8 @@
   function wideSeasonCount(number, box) {
     var id = tmdbId();
     if (!id || !number) return 0;
-
     var key = id + ':' + number;
     if (typeof wide_counts[key] === 'number') return wide_counts[key];
-
     seasonPlanned(number, function (count) {
       if (!count) return;
       wide_counts[key] = count;
@@ -4358,46 +4351,35 @@
       var slot = box.find('.nova-chip__sub');
       if (slot.length) slot.text(wideCount(count));
     });
-
     return 0;
   }
 
   function wideBook(number, done) {
     var id = tmdbId();
     if (!id || !number || !wideMeta()) return done(null);
-
     var key = id + ':' + number;
     if (wide_book[key]) return done(wide_book[key]);
     if (wide_wait[key]) return wide_wait[key].push(done);
-
     var api = null;
     try { api = Lampa.Api.sources.tmdb; } catch (e) { api = null; }
     if (!api || typeof api.get !== 'function') return done(null);
-
     wide_wait[key] = [done];
-
     var finish = function (book) {
       var queue = wide_wait[key] || [];
       delete wide_wait[key];
       if (book) wide_book[key] = book;
-      queue.forEach(function (fn) {
-        try { fn(book); } catch (e) {}
-      });
+      queue.forEach(function (fn) { try { fn(book); } catch (e) {} });
     };
-
     try {
       api.get('tv/' + id + '/season/' + number, {}, function (data) {
         var book = {};
-        var list = (data && data.episodes) || [];
-        list.forEach(function (episode) {
+        ((data && data.episodes) || []).forEach(function (episode) {
           var num = parseInt(episode && episode.episode_number, 10) || 0;
           if (num) book[num] = episode;
         });
         finish(book);
       }, function () { finish(null); });
-    } catch (e) {
-      finish(null);
-    }
+    } catch (e) { finish(null); }
   }
 
   function wideTags(item) {
@@ -4405,7 +4387,6 @@
     var found = source.match(WIDE_TAG_FIND) || [];
     var seen = {};
     var out = [];
-
     found.forEach(function (raw) {
       var norm = String(raw).toUpperCase().replace(/\s+/g, '');
       var value = WIDE_TAG_MAP[norm] || WIDE_TAG_MAP[norm.replace('.', '')] || '';
@@ -4413,20 +4394,16 @@
       seen[value] = true;
       out.push(value);
     });
-
     var channels = source.match(WIDE_CHANNELS);
     if (channels && !seen[channels[1]]) out.push(channels[1]);
-
     return out.slice(0, 4);
   }
 
   function widePick(item) {
     var out = { rate: '', date: '', rest: [] };
-
     (item.meta || []).forEach(function (part) {
       var value = String(part == null ? '' : part).trim();
       if (!value) return;
-
       if (/[\u2605\u2606]/.test(value)) {
         if (!out.rate) out.rate = value.replace(/[\u2605\u2606]\s*/g, '').trim();
         return;
@@ -4441,13 +4418,49 @@
       }
       out.rest.push(value);
     });
-
     return out;
+  }
+
+  function wideRefreshGroup(stype) {
+    if (!ui.rows) return;
+    if (stype === 'season' || stype === 'voice') return wideRows();
+    buildRows();
+  }
+
+  function wideChooseSource(item, key) {
+    if (item.selected) return;
+    ui_focus = key;
+    ui_open = 'source';
+    note_sig = '';
+    wideRefreshGroup('source');
+    markSourceBusy(item);
+    refreshCollection();
+    switchStart('source');
+    lockFocus(key);
+    inplaceStart();
+    hopReset();
+    probeStop();
+    hop.tried[item.source || item.title] = true;
+    keepAlive(function () { filter.onSelect('sort', item); });
+  }
+
+  function wideChooseOption(group, index, key) {
+    if (!filter || typeof filter.onSelect !== 'function') return;
+    ui_focus = key;
+    ui_open = group.stype;
+    wideRefreshGroup(group.stype);
+    refreshCollection();
+    // switchStart сам ставит замок на общий ключ (season/voice), а в широком макете
+    // такой кнопки нет: переводим замок на нажатую кнопку после него
+    switchStart(group.stype);
+    lockFocus(key);
+    keepAlive(function () {
+      filter.onSelect('filter', { stype: group.stype }, { index: index });
+    });
   }
 
   function wideDress(card, item) {
     card.addClass('nova-card--wide');
-
     if (item.folder) {
       card.addClass('nova-card--wide-nav');
       return card;
@@ -4462,8 +4475,7 @@
       var plain = parseInt(digits(number), 10) || 0;
       if (number) {
         thumb.find('.nova-card__num').remove();
-        thumb.prepend($('<div class="nova-card__tag"></div>')
-          .text('S' + (seasonNumber() || 1) + ':E' + (plain || number)));
+        thumb.prepend($('<div class="nova-card__tag"></div>').text('S' + (seasonNumber() || 1) + ':E' + (plain || number)));
       }
     }
 
@@ -4473,22 +4485,18 @@
     var percent = Math.round(percentOf(item));
     var total = wideSeconds(item.time);
     var strip = $('<div class="nova-card__strip"></div>');
-
     if (percent > 0) strip.append($('<span class="nova-card__pct"></span>').text(percent + '%'));
     if (total) {
       var at = Math.round(total * Math.min(100, percent) / 100);
-      strip.append($('<span class="nova-card__clock"></span>')
-        .text((percent > 0 ? wideClock(at) + ' / ' : '') + wideClock(total)));
+      strip.append($('<span class="nova-card__clock"></span>').text((percent > 0 ? wideClock(at) + ' / ' : '') + wideClock(total)));
     }
     if (strip.children().length) thumb.append(strip);
 
     var head = $('<div class="nova-card__head"></div>');
     if (picked.rate) head.append($('<span class="nova-card__rate"></span>').text('\u2605 ' + picked.rate));
-
     var badge = card.find('.nova-card__quality');
     if (badge.length) head.append(badge.detach());
     if (picked.date) head.append($('<span class="nova-card__date"></span>').text(picked.date));
-
     body.prepend(head);
     card.find('.nova-card__side').remove();
     card.find('.nova-card__meta').remove();
@@ -4496,9 +4504,7 @@
     var tags = wideTags(item);
     if (tags.length) {
       var row = $('<div class="nova-card__tags"></div>');
-      tags.forEach(function (value) {
-        row.append($('<span></span>').text(value));
-      });
+      tags.forEach(function (value) { row.append($('<span></span>').text(value)); });
       body.append(row);
     }
 
@@ -4507,43 +4513,31 @@
     body.append(descr);
 
     wideFill(item, card, descr, thumb);
-
     return card;
   }
 
   function wideFill(item, card, descr, thumb) {
     if (!serial || item.folder || !wideMeta()) return;
-
     var number = parseInt(episodeNumber(item.num), 10) || 0;
     if (!number) return;
-
     var season = seasonNumber() || 1;
     var want = movie ? movie.id : 0;
-
     wideBook(season, function (book) {
       if (!book || !movie || movie.id !== want) return;
-
       var episode = book[number];
       if (!episode) return;
-
       if (!descr.text() && episode.overview) descr.text(episode.overview);
-
       var head = card.find('.nova-card__head');
       if (!card.find('.nova-card__rate').length && episode.vote_average) {
-        head.prepend($('<span class="nova-card__rate"></span>')
-          .text('\u2605 ' + parseFloat(episode.vote_average + '').toFixed(1)));
+        head.prepend($('<span class="nova-card__rate"></span>').text('\u2605 ' + parseFloat(episode.vote_average + '').toFixed(1)));
       }
       if (!card.find('.nova-card__date').length) {
         var when = wideDate(episode.air_date);
         if (when) head.append($('<span class="nova-card__date"></span>').text(when));
       }
-
       var title = card.find('.nova-card__title');
       if (episode.name && !title.text()) title.text(episode.name);
-
-      if (episode.still_path && !thumb.hasClass('nova-card__thumb--loaded')) {
-        paintThumb(thumb, image(episode.still_path, 'w500'), false);
-      }
+      if (episode.still_path && !thumb.hasClass('nova-card__thumb--loaded')) paintThumb(thumb, image(episode.still_path, 'w500'), false);
     });
   }
 
@@ -4555,7 +4549,6 @@
   function wideChip(key, title, sub, extra) {
     var box = chip(key, title, extra);
     if (sub === undefined || sub === null) return box;
-
     var slot = box.find('.nova-chip__label');
     var stack = $('<span class="nova-chip__stack"></span>');
     slot.before(stack);
@@ -4568,6 +4561,18 @@
     var season = seasonNumber() || 0;
     var known = id && season ? wide_counts[id + ':' + season] : 0;
     return known || wideFiles();
+  }
+
+  function wideHeroTune() {
+    if (!ui.hero || !wideOn()) return;
+    var meta = ui.hero.find('.nova-hero__meta');
+    meta.children().each(function (_, node) {
+      var text = $(node).text().trim();
+      if (/^\d+:\d+/.test(text)) $(node).remove();
+    });
+    var hint = ui.hero.find('.nova-hero__hint');
+    var actions = ui.hero.find('.nova-hero__actions');
+    if (hint.length && actions.length && !actions.find(hint).length) actions.append(hint);
   }
 
   function wideRows() {
@@ -4585,41 +4590,23 @@
       return row;
     };
 
-    // после переключения движок ловит фокус на общий ключ (season/voice), а в широком
-    // макете такой кнопки нет: переводим замок на ту самую нажатую кнопку
-    var hold = function (key, run) {
-      return function () {
-        ui_focus = key;
-        run();
-        lockFocus(key);
-        ui_focus = key;
-      };
-    };
-
     var put = function (row, key, title, sub, extra, enter, long) {
       var box = wideChip(key, title, sub, extra);
-      var press = hold(key, enter);
-      chip_actions[key] = { enter: press, long: long || null };
-      bind(box, press, long || null);
+      chip_actions[key] = { enter: enter, long: long || null };
+      bind(box, enter, long || null);
       row.append(box);
       return box;
     };
 
     if (groups.season && groups.season.items.length > 1) {
-      var seasons = group(serial
-        ? (groups.season.title || label('nova_wide_seasons'))
-        : label('nova_wide_parts'));
-
+      var seasons = group(serial ? (groups.season.title || label('nova_wide_seasons')) : label('nova_wide_parts'));
       groups.season.items.forEach(function (item, seat) {
         var index = typeof item.index === 'number' ? item.index : seat;
+        var key = 'season:' + index;
         var number = parseInt(digits(item.title), 10) || 0;
-        var box = put(seasons, 'season:' + index,
-          serial ? item.title : partTitle(item.title), '',
-          { active: !!item.selected, plain: true },
-          function () {
-            if (item.selected) return;
-            chooseOption(groups.season, index);
-          });
+        var box = put(seasons, key, serial ? item.title : partTitle(item.title), '', { active: !!item.selected, plain: true }, function () {
+          wideChooseOption(groups.season, index, key);
+        });
         var count = wideSeasonCount(number, box) || (item.selected ? wideFiles() : 0);
         if (count) box.find('.nova-chip__sub').text(wideCount(count));
       });
@@ -4628,22 +4615,13 @@
     if (groups.voice && groups.voice.items.length > 1) {
       var voices = group(groups.voice.title || label('nova_wide_voices'));
       var shared = wideGroupCount();
-      var order = groups.voice.items.map(function (item, seat) {
-        return { item: item, index: typeof item.index === 'number' ? item.index : seat, seat: seat };
-      });
-
-      order.sort(function (a, b) {
-        return (voiceRank(a.item.title) - voiceRank(b.item.title)) || (a.seat - b.seat);
-      });
-
+      var order = groups.voice.items.map(function (item, seat) { return { item: item, index: typeof item.index === 'number' ? item.index : seat, seat: seat }; });
+      order.sort(function (a, b) { return (voiceRank(a.item.title) - voiceRank(b.item.title)) || (a.seat - b.seat); });
       order.forEach(function (entry) {
-        put(voices, 'voice:' + entry.index, entry.item.title,
-          shared ? wideCount(shared) : '',
-          { active: !!entry.item.selected, plain: true },
-          function () {
-            if (entry.item.selected) return;
-            chooseOption(groups.voice, entry.index);
-          });
+        var key = 'voice:' + entry.index;
+        put(voices, key, entry.item.title, shared ? wideCount(shared) : '', { active: !!entry.item.selected, plain: true }, function () {
+          wideChooseOption(groups.voice, entry.index, key);
+        });
       });
     }
 
@@ -4662,61 +4640,48 @@
 
     extras.forEach(function (entry, index) {
       var origin = entry.node;
-      tool('extra:' + index, entry.label, entry.value, {},
-        function () { openExtra(index); },
-        function () {
-          try { origin.trigger('hover:long'); } catch (e) {}
-        });
+      tool('extra:' + index, entry.label, entry.value, {}, function () { openExtra(index); }, function () {
+        try { origin.trigger('hover:long'); } catch (e) {}
+      });
     });
 
     if (groups.sort && groups.sort.length) {
       var current = null;
-      groups.sort.forEach(function (item) {
-        if (item.selected) current = item;
-      });
+      groups.sort.forEach(function (item) { if (item.selected) current = item; });
       var parts = splitSourceName(sourceTitle());
       var source_key = current ? (current.source || current.title) : '';
-      tool('source', text('nova_source', 'nova_wide_source'), parts.name,
-        { badge: knownQuality(source_key) || parts.badge },
-        function () { uiToggle('source'); });
+      tool('source', text('nova_source', 'nova_wide_source'), parts.name, { badge: knownQuality(source_key) || parts.badge }, function () {
+        ui_focus = 'source';
+        ui_open = 'source';
+        buildRows();
+        var seat = wideEntry();
+        if (seat) focusNode(seat);
+      });
     }
 
     if (serial && !nav) {
-      tool('order', label('nova_wide_order'),
-        label(wideReverse() ? 'nova_wide_order_reverse' : 'nova_wide_order_straight'),
-        { plain: true },
-        function () {
-          save(WIDE_ORDER_KEY, wideReverse() ? 'straight' : 'reverse');
-          lockFocus('order');
-          redraw();
-        });
+      tool('order', label('nova_wide_order'), label(wideReverse() ? 'nova_wide_order_reverse' : 'nova_wide_order_straight'), { plain: true }, function () {
+        save(WIDE_ORDER_KEY, wideReverse() ? 'straight' : 'reverse');
+        lockFocus('order');
+        redraw();
+      });
     }
 
     if (!nav) {
-      tool('look', label('nova_wide_look'),
-        label(wideRow() ? 'nova_wide_look_row' : 'nova_wide_look_grid'),
-        { plain: true },
-        function () {
-          save(WIDE_LAYOUT_KEY, wideRow() ? 'grid' : 'row');
-          lockFocus('look');
-          redraw();
-        });
+      tool('look', label('nova_wide_look'), label(wideRow() ? 'nova_wide_look_row' : 'nova_wide_look_grid'), { plain: true }, function () {
+        save(WIDE_LAYOUT_KEY, wideRow() ? 'grid' : 'row');
+        lockFocus('look');
+        redraw();
+      });
     }
 
-    if (wideResetable()) {
-      tool('reset', '', label('nova_wide_reset'), { plain: true }, wideReset);
-    }
-
+    if (wideResetable()) tool('reset', '', label('nova_wide_reset'), { plain: true }, wideReset);
     if (!nav && items.length > JUMP_FROM && !wideRow()) {
       var now = pageAt(pages(items.length), ui_page > 0 ? ui_page : 0);
-      tool('jump', serial
-        ? text('nova_jump', 'nova_wide_jump')
-        : text('nova_files', 'nova_wide_files'), pageTitle(now), {},
-        function () { uiToggle('jump'); });
+      tool('jump', serial ? text('nova_jump', 'nova_wide_jump') : text('nova_files', 'nova_wide_files'), pageTitle(now), {}, function () { uiToggle('jump'); });
     }
 
-    fitToolbar(bar);
-
+    // источников/страниц/меню сервера бывает много, они живут отдельным рядом
     if (ui_open === 'source') sourceRow();
     else if (ui_open === 'jump') jumpRow();
     else if (extra_menu && ui_open === extra_menu.key) extraRow();
@@ -4736,45 +4701,31 @@
   function wideHostReset() {
     if (!filter || !filter.nova_sets) return false;
     var list = filter.nova_sets.filter || [];
-    for (var i = 0; i < list.length; i++) {
-      if (list[i] && list[i].reset) return true;
-    }
+    for (var i = 0; i < list.length; i++) if (list[i] && list[i].reset) return true;
     return false;
   }
 
   function wideReset() {
     save(WIDE_ORDER_KEY, 'straight');
     save(WIDE_LAYOUT_KEY, 'grid');
-
     var box = wideResetButton();
     if (box) {
-      try {
-        box.trigger('hover:enter');
-        return;
-      } catch (e) {}
+      try { box.trigger('hover:enter'); return; } catch (e) {}
     }
-
     if (filter && typeof filter.onSelect === 'function' && wideHostReset()) {
-      var host_filter = filter;
       ui_open = '';
-      if (ui.list) ui.list.empty().append(skeleton(4));
       refreshCollection();
       lockFocus('reset');
       switchStart('reset');
-      keepAlive(function () {
-        host_filter.onSelect('filter', { reset: true });
-      });
+      keepAlive(function () { filter.onSelect('filter', { reset: true }); });
       return;
     }
-
     lockFocus('reset');
     redraw();
   }
 
   function wideDropFrame() {
-    try {
-      if (ui.root) ui.root.remove();
-    } catch (e) {}
+    try { if (ui.root) ui.root.remove(); } catch (e) {}
     ui = {};
     signature = '';
   }
@@ -4782,14 +4733,10 @@
   function wideItems() {
     var out = [];
     if (!inSkin()) return out;
-    ui.rows.find('.selector').each(function () {
-      if (shown(this)) out.push(this);
-    });
+    ui.rows.find('.selector').each(function () { if (shown(this)) out.push(this); });
     return out;
   }
 
-  // сезоны и переводы висят на экране всегда, а выпадающий список (источники,
-  // страницы, меню кнопок сервера) движок кладёт прямо в .nova__rows
   function wideOpenRow() {
     if (!inSkin() || !ui_open) return null;
     var row = ui.rows.children('.nova-drop').first();
@@ -4799,14 +4746,10 @@
   function wideEntry() {
     var row = wideOpenRow();
     if (!row) return null;
-
     var active = row.find('.nova-chip--active')[0];
     if (active && shown(active)) return active;
-
     var seat = null;
-    row.find('.selector').each(function () {
-      if (!seat && shown(this)) seat = this;
-    });
+    row.find('.selector').each(function () { if (!seat && shown(this)) seat = this; });
     return seat;
   }
 
@@ -4826,66 +4769,52 @@
   function wideToRows(bottom) {
     var nodes = wideItems();
     if (!nodes.length) return false;
-
     var active = null;
     if (!bottom) {
       var marked = ui.rows.find('.nova-chip--active')[0];
       if (marked && shown(marked)) active = marked;
     }
-
     if (!active) {
       var edge = null;
       nodes.forEach(function (node) {
         var box = node.getBoundingClientRect();
-        if (edge === null) {
-          edge = box.top;
-          active = node;
-          return;
-        }
-        if (bottom ? box.top > edge : box.top < edge) {
-          edge = box.top;
-          active = node;
-        }
+        if (edge === null) { edge = box.top; active = node; return; }
+        if (bottom ? box.top > edge : box.top < edge) { edge = box.top; active = node; }
       });
     }
-
     if (!active) active = nodes[0];
-
     lockRelease();
     return focusNode(active);
   }
 
-  function wideToList() {
-    if (!items.length) return false;
-
+  function wideResumeCard() {
     var target = pickResume(items);
-    if (target && target.card && target.card.length && shown(target.card)) {
-      lockRelease();
-      return focusNode(target.card);
-    }
-
+    if (target && target.card && target.card.length && shown(target.card)) return target.card;
     var first = ui.list.find('.nova-card.selector').first();
-    if (!first.length) return false;
-
-    lockRelease();
-    return focusNode(first);
+    return first.length ? first : null;
   }
 
   function wideDown() {
     if (!inSkin()) return false;
-
+    if (heroFocused()) {
+      var resume = wideResumeCard();
+      if (!resume) return false;
+      lockRelease();
+      return focusNode(resume);
+    }
     if (rowsFocused()) {
       var below = rowStep('down');
       if (below) return focusNode(below);
-      return wideToList();
+      var target = wideResumeCard();
+      if (!target) return false;
+      lockRelease();
+      return focusNode(target);
     }
-    if (heroFocused()) return wideToRows();
     return false;
   }
 
   function wideUp() {
     if (!inSkin()) return false;
-
     if (listFocused()) return wideToRows(true) || wideToHero();
     if (rowsFocused()) {
       var above = rowStep('up');
@@ -4897,38 +4826,28 @@
 
   function wideSide(dir) {
     if (!inSkin()) return false;
-
+    if (heroFocused()) {
+      if (dir === 'right') return wideToRows() || true;
+      return true;
+    }
     if (rowsFocused()) {
       var next = dropSide(dir);
       if (next) return focusNode(next);
       if (dir === 'left') return wideToHero() || true;
       return true;
     }
-
-    if (heroFocused()) {
-      if (dir === 'right') return wideToRows() || true;
-      return true;
-    }
-
     if (listFocused()) {
-      // внутри ленты пусть работает штатная навигация, но на краю ничего не выкидываем:
-      // иначе хозяин экрана показывает свой ламповый фильтр сбоку
-      try {
-        if (window.Navigator && window.Navigator.canmove(dir)) return false;
-      } catch (e) {}
+      try { if (window.Navigator && window.Navigator.canmove(dir)) return false; } catch (e) {}
       return true;
     }
-
     return true;
   }
 
   function wideFollow(element) {
     if (!wideOn() || !wideRow()) return false;
     if (!ui.list || !ui.list.hasClass('nova__list--row')) return false;
-
     var node = element instanceof jQuery ? element[0] : element;
     if (!node || !ui.list[0] || !$.contains(ui.list[0], node)) return false;
-
     try {
       var strip = ui.list.parent();
       var frame = (strip.length ? strip[0] : ui.list[0]).getBoundingClientRect();
@@ -4937,92 +4856,30 @@
       var pad = Math.round(frame.width * 0.08) + 20;
       var limit = Math.min(0, frame.width - ui.list[0].scrollWidth);
       var next = shift;
-
       if (box.left - pad < frame.left) next = shift + (frame.left - box.left) + pad;
       else if (box.right + pad > frame.right) next = shift - (box.right - frame.right) - pad;
-
       next = Math.round(Math.max(limit, Math.min(0, next)));
       if (next === shift) return true;
-
       ui.list.attr('data-nova-x', next);
       ui.list[0].style['-webkit-transform'] = 'translate3d(' + next + 'px,0,0)';
       ui.list[0].style.transform = 'translate3d(' + next + 'px,0,0)';
     } catch (e) {}
-
     return true;
   }
 
   function wideStrip(list) {
     if (!wideOn() || !ui.list) return;
-
     if (wideRow() && !nav && list.length > 0) ui.list.addClass('nova__list--row');
     else ui.list.removeClass('nova__list--row');
-
     ui.list.attr('data-nova-x', 0);
-    try {
-      ui.list[0].style['-webkit-transform'] = '';
-      ui.list[0].style.transform = '';
-    } catch (e) {}
+    try { ui.list[0].style['-webkit-transform'] = ''; ui.list[0].style.transform = ''; } catch (e) {}
   }
 
   function wideSettings() {
-    Lampa.SettingsApi.addParam({
-      component: 'nova_wide',
-      param: {
-        name: WIDE_MODE_KEY,
-        type: 'select',
-        values: { wide: label('nova_wide_mode_wide'), classic: label('nova_wide_mode_classic') },
-        default: 'wide'
-      },
-      field: {
-        name: label('nova_wide_set_mode'),
-        description: label('nova_wide_set_mode_descr')
-      },
-      onChange: function () { redraw(); }
-    });
-
-    Lampa.SettingsApi.addParam({
-      component: 'nova_wide',
-      param: {
-        name: WIDE_LAYOUT_KEY,
-        type: 'select',
-        values: { grid: label('nova_wide_look_grid'), row: label('nova_wide_look_row') },
-        default: 'grid'
-      },
-      field: {
-        name: label('nova_wide_set_look'),
-        description: label('nova_wide_set_look_descr')
-      },
-      onChange: function () { redraw(); }
-    });
-
-    Lampa.SettingsApi.addParam({
-      component: 'nova_wide',
-      param: {
-        name: WIDE_ORDER_KEY,
-        type: 'select',
-        values: {
-          straight: label('nova_wide_order_straight'),
-          reverse: label('nova_wide_order_reverse')
-        },
-        default: 'straight'
-      },
-      field: {
-        name: label('nova_wide_set_order'),
-        description: label('nova_wide_set_order_descr')
-      },
-      onChange: function () { redraw(); }
-    });
-
-    Lampa.SettingsApi.addParam({
-      component: 'nova_wide',
-      param: { name: WIDE_META_KEY, type: 'trigger', default: true },
-      field: {
-        name: label('nova_wide_set_meta'),
-        description: label('nova_wide_set_meta_descr')
-      },
-      onChange: function () { redraw(); }
-    });
+    Lampa.SettingsApi.addParam({ component: 'nova_wide', param: { name: WIDE_MODE_KEY, type: 'select', values: { wide: label('nova_wide_mode_wide'), classic: label('nova_wide_mode_classic') }, default: 'wide' }, field: { name: label('nova_wide_set_mode'), description: label('nova_wide_set_mode_descr') }, onChange: function () { redraw(); } });
+    Lampa.SettingsApi.addParam({ component: 'nova_wide', param: { name: WIDE_LAYOUT_KEY, type: 'select', values: { grid: label('nova_wide_look_grid'), row: label('nova_wide_look_row') }, default: 'grid' }, field: { name: label('nova_wide_set_look'), description: label('nova_wide_set_look_descr') }, onChange: function () { redraw(); } });
+    Lampa.SettingsApi.addParam({ component: 'nova_wide', param: { name: WIDE_ORDER_KEY, type: 'select', values: { straight: label('nova_wide_order_straight'), reverse: label('nova_wide_order_reverse') }, default: 'straight' }, field: { name: label('nova_wide_set_order'), description: label('nova_wide_set_order_descr') }, onChange: function () { redraw(); } });
+    Lampa.SettingsApi.addParam({ component: 'nova_wide', param: { name: WIDE_META_KEY, type: 'trigger', default: true }, field: { name: label('nova_wide_set_meta'), description: label('nova_wide_set_meta_descr') }, onChange: function () { redraw(); } });
   }
 
   var LOGO_CSS = ".nova-wide-root .nova-hero__title--logo>img.nova-logo--edge{-webkit-filter:drop-shadow(0 0 .02em rgba(255,255,255,.9)) drop-shadow(0 0 .06em rgba(255,255,255,.45)) drop-shadow(0 .04em .12em rgba(0,0,0,.5));filter:drop-shadow(0 0 .02em rgba(255,255,255,.9)) drop-shadow(0 0 .06em rgba(255,255,255,.45)) drop-shadow(0 .04em .12em rgba(0,0,0,.5))}";
@@ -5034,7 +4891,7 @@
     '.nova-wide-root .nova__list--grid .nova-card__thumb:not(.nova-card__thumb--loaded) .nova-card__num>span,.nova-wide-root .nova__list--grid .nova-card__thumb--fallback .nova-card__num>span{background:rgba(10,11,17,.62);padding:.1em .42em;-webkit-box-shadow:0 .12em .45em rgba(0,0,0,.4);box-shadow:0 .12em .45em rgba(0,0,0,.4)}'
   ].join('');
 
-  var WIDE_CSS = ".nova-wide-scope .explorer__files-body .scroll__body>.nova-wide-root.nova-wide,.nova-wide{display:-webkit-flex!important;display:-ms-flexbox!important;display:flex!important;-webkit-flex-wrap:wrap;-ms-flex-wrap:wrap;flex-wrap:wrap;-webkit-align-items:flex-start;-ms-flex-align:start;align-items:flex-start;padding:0 0 2em 0}.nova-wide>.nova__hero{-webkit-flex:0 0 37%;-ms-flex:0 0 37%;flex:0 0 37%;width:37%;max-width:37%;padding:0 1.5em 0 0}.nova-wide>.nova__rows{-webkit-flex:1 1 0%;-ms-flex:1 1 0%;flex:1 1 0%;width:63%;min-width:0;padding:0}.nova-wide>.nova-wide__strip{-webkit-flex:0 0 100%;-ms-flex:0 0 100%;flex:0 0 100%;width:100%;margin:1.2em 0 0 0;padding:.4em 0 .6em 0;overflow:visible}.nova-wide-scope .explorer__files-body,.nova-wide-scope .explorer__files-body .scroll__content,.nova-wide-scope .explorer__files-body .scroll__body{-webkit-mask-image:none!important;mask-image:none!important}.nova-wide-scope .explorer__files-body .scroll__body{padding-top:.3em;padding-left:.3em}.nova-wide .nova__rows,.nova-wide .nova-wide__panel,.nova-wide .nova-wide__group,.nova-wide .nova-wide__row{overflow:visible}body.nova-wide-fade .nova-wide .nova-hero__bg,body.nova-wide-fade .nova-wide .nova-hero__shade{-webkit-mask-image:none!important;mask-image:none!important}body.nova-wide-fade .nova-wide .nova-hero{-webkit-border-radius:.9em;border-radius:.9em}body.nova-wide-fade .nova-wide .nova-hero__progress{left:0;right:0;bottom:0;-webkit-border-radius:0;border-radius:0}body.nova-wide-fade .nova-wide .nova-hero__season{margin-bottom:0}.nova-wide .nova-hero{min-height:0;margin:0;-webkit-border-radius:.9em;border-radius:.9em}.nova-wide .nova-hero__bg{position:relative;top:auto;left:auto;right:auto;bottom:auto;padding-top:56.25%}.nova-wide .nova-hero__bg img{position:absolute;top:0;left:0;width:100%;height:100%}.nova-wide .nova-hero__shade{background:-webkit-linear-gradient(bottom,rgba(10,11,17,.94) 0%,rgba(10,11,17,.5) 46%,rgba(10,11,17,0) 100%);background:linear-gradient(0deg,rgba(10,11,17,.94) 0%,rgba(10,11,17,.5) 46%,rgba(10,11,17,0) 100%)}.nova-wide .nova-hero__body{position:absolute;left:0;right:0;bottom:0;padding:1em 1.1em;max-width:100%}.nova-wide .nova-hero--compact .nova-hero__body{position:relative;min-height:0;padding:1em 1.1em}.nova-wide .nova-hero__descr{display:none}.nova-wide .nova-hero__title{font-size:1.4em;margin-bottom:.35em;-webkit-line-clamp:1}.nova-wide .nova-hero__title--logo>img{max-height:2.5em;width:auto}.nova-wide .nova-hero__meta{position:absolute;top:.7em;right:.8em;z-index:2;margin:0;font-size:.95em}.nova-wide .nova-hero__meta>*{margin:0 0 0 .5em}.nova-wide .nova-hero__actions{margin:0}.nova-wide .nova-hero__actions>.nova-btn{font-size:1.05em;padding:.55em 1.15em;margin:0 .6em .35em 0}.nova-wide .nova-hero__hint{-webkit-flex:1 1 100%;-ms-flex:1 1 100%;flex:1 1 100%;font-size:.92em;margin-top:.2em}.nova-wide .nova-hero__season{margin:.35em 0 0 .1em;font-size:.9em;opacity:.55}.nova-wide .nova-hero__progress{height:.28em}.nova-wide__group{margin:0 0 .75em 0}.nova-wide__label{font-size:.9em;letter-spacing:.1em;text-transform:uppercase;opacity:.45;margin:0 0 .4em .1em}.nova-wide__row{display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-flex-wrap:wrap;-ms-flex-wrap:wrap;flex-wrap:wrap}.nova-wide .nova-chip{-webkit-border-radius:.5em;border-radius:.5em;padding:.45em .85em;margin:0 .5em .5em 0;max-width:none;-webkit-align-items:flex-start;-ms-flex-align:start;align-items:flex-start}.nova-wide .nova-chip__stack{display:block;min-width:0}.nova-wide .nova-chip__stack .nova-chip__label{display:block;font-size:1.05em;line-height:1.3;padding:0}.nova-wide .nova-chip__sub{display:block;font-size:.76em;line-height:1.35;opacity:.5;white-space:nowrap}.nova-wide .nova-chip.focus .nova-chip__sub{opacity:.6}.nova-wide .nova-chip--active{background:rgba(255,255,255,.16);-webkit-box-shadow:inset 0 0 0 .09em rgba(255,255,255,.45);box-shadow:inset 0 0 0 .09em rgba(255,255,255,.45)}.nova-wide .nova-chip--active.focus{-webkit-box-shadow:0 .2em .7em rgba(0,0,0,.4);box-shadow:0 .2em .7em rgba(0,0,0,.4)}.nova-wide__bar{-webkit-flex-wrap:wrap;-ms-flex-wrap:wrap;flex-wrap:wrap;margin:.25em 0 0 0;overflow:visible}.nova-wide__bar .nova-toolbar__label{font-size:.9em;margin:0 .5em .5em 0}.nova-wide__bar .nova-chip{padding:.35em .75em;margin:0 1.1em .5em 0;font-size:.95em}.nova-wide__bar .nova-chip__label{font-size:1em}.nova-wide .nova-drop{margin:0}.nova-wide__strip .nova__list{display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-flex-wrap:wrap;-ms-flex-wrap:wrap;flex-wrap:wrap;margin:0 -.55em;-webkit-transition:-webkit-transform .25s;transition:transform .25s}.nova-wide__strip .nova__list--row{-webkit-flex-wrap:nowrap;-ms-flex-wrap:none;flex-wrap:nowrap}.nova-wide .nova-card--wide{display:block;-webkit-flex:0 0 20%;-ms-flex:0 0 20%;flex:0 0 20%;width:20%;max-width:20%;margin:0;padding:0 .55em 1.1em .55em;background:none}.nova-wide .nova-card--wide.focus{background:none;color:inherit}.nova-wide .nova-card--wide .nova-card__thumb{position:relative;width:100%;height:auto;margin:0;padding-top:56.25%;overflow:hidden;-webkit-border-radius:.55em;border-radius:.55em;background:rgba(255,255,255,.07)}.nova-wide .nova-card--wide .nova-card__thumb img{position:absolute;top:0;left:0;width:100%;height:100%;-o-object-fit:cover;object-fit:cover}.nova-wide .nova-card--wide.focus .nova-card__thumb{-webkit-box-shadow:0 0 0 .16em #fff;box-shadow:0 0 0 .16em #fff}.nova-wide .nova-card--wide.focus .nova-card__thumb:after{content:\"\\25B6\";position:absolute;top:50%;left:50%;width:2em;height:2em;margin:-1em 0 0 -1em;z-index:3;-webkit-border-radius:50%;border-radius:50%;background:rgba(16,18,26,.55);color:#fff;font-size:1.05em;line-height:2em;text-align:center}.nova-wide .nova-card__tag{position:absolute;top:.4em;left:.45em;z-index:2;padding:.12em .4em;-webkit-border-radius:.3em;border-radius:.3em;background:rgba(10,11,17,.65);font-size:.85em;font-weight:600;line-height:1.4}.nova-wide .nova-card__strip{position:absolute;left:.55em;right:.55em;bottom:.7em;z-index:2;display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-justify-content:space-between;-ms-flex-pack:justify;justify-content:space-between;font-size:.8em;text-shadow:0 .06em .2em rgba(0,0,0,.75)}.nova-wide .nova-card__pct{font-weight:600}.nova-wide .nova-card--wide .nova-card__line{position:absolute;left:0;right:0;bottom:0;z-index:2;height:.22em;margin:0;background:rgba(255,255,255,.25)}.nova-wide .nova-card--wide .nova-card__body{padding:0}.nova-wide .nova-card__head{display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-align-items:center;-ms-flex-align:center;align-items:center;-webkit-flex-wrap:wrap;-ms-flex-wrap:wrap;flex-wrap:wrap;margin:.5em 0 .25em 0;font-size:.85em;opacity:.7}.nova-wide .nova-card__head>*{margin:0 .5em .1em 0}.nova-wide .nova-card__head .nova-badge{font-size:.85em;opacity:1}.nova-wide .nova-card__rate{font-weight:600;opacity:1}.nova-wide .nova-card--wide .nova-card__title{margin:0 0 .3em 0;font-size:1.05em;line-height:1.3;overflow:hidden;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical}.nova-wide .nova-card__tags{display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-flex-wrap:wrap;-ms-flex-wrap:wrap;flex-wrap:wrap;margin:0 0 .35em 0}.nova-wide .nova-card__tags>span{margin:0 .3em .25em 0;padding:.1em .35em;-webkit-border-radius:.25em;border-radius:.25em;background:rgba(255,255,255,.12);font-size:.72em;letter-spacing:.03em;line-height:1.5}.nova-wide .nova-card__descr{font-size:.85em;line-height:1.35;opacity:.5;overflow:hidden;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical}.nova-wide .nova-card--wide .nova-card__meta{font-size:.8em;opacity:.5}.nova-wide .nova-card--nav{-webkit-flex:0 0 100%;-ms-flex:0 0 100%;flex:0 0 100%;width:100%;max-width:100%}@media screen and (max-width:1100px){.nova-wide>.nova__hero,.nova-wide>.nova__rows{-webkit-flex:0 0 100%;-ms-flex:0 0 100%;flex:0 0 100%;width:100%;max-width:100%;padding:0}.nova-wide>.nova__rows{margin-top:1em}.nova-wide .nova-card--wide{-webkit-flex:0 0 33.3333%;-ms-flex:0 0 33.3333%;flex:0 0 33.3333%;width:33.3333%;max-width:33.3333%}}@media screen and (max-width:640px){.nova-wide .nova-card--wide{-webkit-flex:0 0 50%;-ms-flex:0 0 50%;flex:0 0 50%;width:50%;max-width:50%}.nova-wide .nova-card__descr{display:none}}";
+  var WIDE_CSS = ".nova-wide-scope .explorer__files-body .scroll__body>.nova-wide-root.nova-wide,.nova-wide{display:-webkit-flex!important;display:-ms-flexbox!important;display:flex!important;-webkit-flex-wrap:wrap;-ms-flex-wrap:wrap;flex-wrap:wrap;-webkit-align-items:flex-start;-ms-flex-align:start;align-items:flex-start;padding:0 0 2em 0}.nova-wide>.nova__hero{-webkit-flex:0 0 41%;-ms-flex:0 0 41%;flex:0 0 41%;width:41%;max-width:41%;padding:0 1.6em 0 0}.nova-wide>.nova__rows{-webkit-flex:1 1 0%;-ms-flex:1 1 0%;flex:1 1 0%;width:59%;min-width:0;padding:.05em 0 0 0}.nova-wide>.nova-wide__strip{-webkit-flex:0 0 100%;-ms-flex:0 0 100%;flex:0 0 100%;width:100%;margin:1.05em 0 0 0;padding:.4em 0 .6em 1.05em;overflow:visible}.nova-wide-scope .explorer__files-body,.nova-wide-scope .explorer__files-body .scroll__content,.nova-wide-scope .explorer__files-body .scroll__body{-webkit-mask-image:none!important;mask-image:none!important}.nova-wide-scope .explorer__files-body .scroll__body{padding-top:.3em;padding-left:.3em}.nova-wide .nova__rows,.nova-wide .nova-wide__panel,.nova-wide .nova-wide__group,.nova-wide .nova-wide__row{overflow:visible}body.nova-wide-fade .nova-wide .nova-hero__bg,body.nova-wide-fade .nova-wide .nova-hero__shade{-webkit-mask-image:none!important;mask-image:none!important}body.nova-wide-fade .nova-wide .nova-hero{-webkit-border-radius:.95em;border-radius:.95em}body.nova-wide-fade .nova-wide .nova-hero__progress{left:0;right:0;bottom:0;-webkit-border-radius:0;border-radius:0}body.nova-wide-fade .nova-wide .nova-hero__season{margin-bottom:0}.nova-wide .nova-hero{min-height:0;margin:0;-webkit-border-radius:.95em;border-radius:.95em}.nova-wide .nova-hero__bg{position:relative;top:auto;left:auto;right:auto;bottom:auto;padding-top:58.5%}.nova-wide .nova-hero__bg img{position:absolute;top:0;left:0;width:100%;height:100%}.nova-wide .nova-hero__shade{background:-webkit-linear-gradient(bottom,rgba(10,11,17,.95) 0%,rgba(10,11,17,.56) 48%,rgba(10,11,17,0) 100%);background:linear-gradient(0deg,rgba(10,11,17,.95) 0%,rgba(10,11,17,.56) 48%,rgba(10,11,17,0) 100%)}.nova-wide .nova-hero__body{position:absolute;left:0;right:0;bottom:0;padding:1.05em 1.15em .9em 1.15em;max-width:100%;display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-flex-direction:column;-ms-flex-direction:column;flex-direction:column}.nova-wide .nova-hero--compact .nova-hero__body{position:relative;min-height:0;padding:1em 1.1em}.nova-wide .nova-hero__descr{display:none}.nova-wide .nova-hero__title{font-size:1.68em;margin-bottom:.42em;-webkit-line-clamp:1;max-width:72%}.nova-wide .nova-hero__title--logo>img{max-height:2.9em;width:auto;-webkit-filter:drop-shadow(0 .15em .4em rgba(0,0,0,.5));filter:drop-shadow(0 .15em .4em rgba(0,0,0,.5))}.nova-wide .nova-hero__meta{position:absolute;top:.72em;right:.9em;z-index:3;margin:0;font-size:1em;display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-flex-wrap:wrap;-ms-flex-wrap:wrap;flex-wrap:wrap;-webkit-justify-content:flex-end;-ms-flex-pack:end;justify-content:flex-end;max-width:46%}.nova-wide .nova-hero__meta>*{margin:0 0 0 .55em;padding:.08em .42em;-webkit-border-radius:.32em;border-radius:.32em;background:rgba(10,11,17,.46);text-shadow:0 .06em .18em rgba(0,0,0,.8)}.nova-wide .nova-hero__actions{margin:0;display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-flex-wrap:wrap;-ms-flex-wrap:wrap;flex-wrap:wrap;-webkit-align-items:center;-ms-flex-align:center;align-items:center;max-width:100%}.nova-wide .nova-hero__actions>.nova-btn{font-size:1.08em;padding:.56em 1.18em;margin:0 .55em .3em 0}.nova-wide .nova-hero__hint{-webkit-flex:0 1 auto;-ms-flex:0 1 auto;flex:0 1 auto;font-size:.98em;margin:0 0 .28em 0;min-width:0;white-space:nowrap;max-width:52%}.nova-wide .nova-hero__season{margin:.18em 0 0 .05em;font-size:.92em;opacity:.6}.nova-wide .nova-hero__progress{height:.28em}.nova-wide__group{margin:0 0 .72em 0}.nova-wide__label{font-size:.9em;letter-spacing:.1em;text-transform:uppercase;opacity:.45;margin:0 0 .38em .1em}.nova-wide__row{display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-flex-wrap:wrap;-ms-flex-wrap:wrap;flex-wrap:wrap}.nova-wide .nova-chip{-webkit-border-radius:.52em;border-radius:.52em;padding:.45em .85em;margin:0 .45em .45em 0;max-width:none;-webkit-align-items:flex-start;-ms-flex-align:start;align-items:flex-start;background:rgba(255,255,255,.08);-webkit-box-shadow:inset 0 0 0 .08em rgba(255,255,255,.06);box-shadow:inset 0 0 0 .08em rgba(255,255,255,.06)}.nova-wide .nova-chip__stack{display:block;min-width:0}.nova-wide .nova-chip__stack .nova-chip__label{display:block;font-size:1.05em;line-height:1.3;padding:0}.nova-wide .nova-chip__sub{display:block;font-size:.76em;line-height:1.35;opacity:.5;white-space:nowrap}.nova-wide .nova-chip__badge,.nova-wide .nova-badge,.nova-wide .nova-card__tag,.nova-wide .nova-card__tags>span{background:rgba(10,11,17,.6)!important;-webkit-box-shadow:inset 0 0 0 .08em rgba(255,255,255,.08),0 .08em .28em rgba(0,0,0,.25);box-shadow:inset 0 0 0 .08em rgba(255,255,255,.08),0 .08em .28em rgba(0,0,0,.25)}.nova-wide .nova-chip.focus .nova-chip__sub{opacity:.65}.nova-wide .nova-chip--active{background:rgba(255,255,255,.16);-webkit-box-shadow:inset 0 0 0 .09em rgba(255,255,255,.45);box-shadow:inset 0 0 0 .09em rgba(255,255,255,.45)}.nova-wide .nova-chip--active.focus{-webkit-box-shadow:0 .2em .7em rgba(0,0,0,.4);box-shadow:0 .2em .7em rgba(0,0,0,.4)}.nova-wide__bar{-webkit-flex-wrap:nowrap;-ms-flex-wrap:nowrap;flex-wrap:nowrap;margin:.15em 0 0 0;overflow:hidden;padding-right:.4em}.nova-wide__bar .nova-toolbar__label{font-size:.9em;margin:0 .48em 0 0;-webkit-flex-shrink:0;-ms-flex-negative:0;flex-shrink:0}.nova-wide__bar .nova-chip{padding:.35em .75em;margin:0 .75em 0 0;font-size:.95em;-webkit-flex-shrink:0;-ms-flex-negative:0;flex-shrink:0}.nova-wide__bar .nova-chip__label{font-size:1em}.nova-wide .nova-drop{margin:0}.nova-wide__strip .nova__list{display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-flex-wrap:wrap;-ms-flex-wrap:wrap;flex-wrap:wrap;margin:0 -.55em;-webkit-transition:-webkit-transform .25s;transition:transform .25s}.nova-wide__strip .nova__list--row{-webkit-flex-wrap:nowrap;-ms-flex-wrap:none;flex-wrap:nowrap}.nova-wide .nova-card--wide{display:block;-webkit-flex:0 0 20%;-ms-flex:0 0 20%;flex:0 0 20%;width:20%;max-width:20%;margin:0;padding:0 .55em 1.1em .55em;background:none}.nova-wide .nova-card--wide.focus{background:none;color:inherit}.nova-wide .nova-card--wide .nova-card__thumb{position:relative;width:100%;height:auto;margin:0;padding-top:56.25%;overflow:hidden;-webkit-border-radius:.55em;border-radius:.55em;background:rgba(255,255,255,.07)}.nova-wide .nova-card--wide .nova-card__thumb img{position:absolute;top:0;left:0;width:100%;height:100%;-o-object-fit:cover;object-fit:cover}.nova-wide .nova-card--wide.focus .nova-card__thumb{-webkit-box-shadow:0 0 0 .16em #fff;box-shadow:0 0 0 .16em #fff}.nova-wide .nova-card--wide.focus .nova-card__thumb:after{content:\"\\25B6\";position:absolute;top:50%;left:50%;width:2em;height:2em;margin:-1em 0 0 -1em;z-index:3;-webkit-border-radius:50%;border-radius:50%;background:rgba(16,18,26,.55);color:#fff;font-size:1.05em;line-height:2em;text-align:center}.nova-wide .nova-card__tag{position:absolute;top:.4em;left:.45em;z-index:3;padding:.12em .4em;-webkit-border-radius:.3em;border-radius:.3em;font-size:.85em;font-weight:600;line-height:1.4}.nova-wide .nova-card__strip{position:absolute;left:.55em;right:.55em;bottom:.7em;z-index:2;display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-justify-content:space-between;-ms-flex-pack:justify;justify-content:space-between;font-size:.8em;text-shadow:0 .06em .2em rgba(0,0,0,.75)}.nova-wide .nova-card__pct{font-weight:600}.nova-wide .nova-card--wide .nova-card__line{position:absolute;left:0;right:0;bottom:0;z-index:2;height:.22em;margin:0;background:rgba(255,255,255,.25)}.nova-wide .nova-card--wide .nova-card__body{padding:0}.nova-wide .nova-card__head{display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-align-items:center;-ms-flex-align:center;align-items:center;-webkit-flex-wrap:wrap;-ms-flex-wrap:wrap;flex-wrap:wrap;margin:.5em 0 .25em 0;font-size:.85em;opacity:.7}.nova-wide .nova-card__head>*{margin:0 .5em .1em 0}.nova-wide .nova-card__head .nova-badge{font-size:.85em;opacity:1}.nova-wide .nova-card__rate{font-weight:600;opacity:1}.nova-wide .nova-card--wide .nova-card__title{margin:0 0 .3em 0;font-size:1.05em;line-height:1.3;overflow:hidden;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical}.nova-wide .nova-card__tags{display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-flex-wrap:wrap;-ms-flex-wrap:wrap;flex-wrap:wrap;margin:0 0 .35em 0}.nova-wide .nova-card__tags>span{margin:0 .3em .25em 0;padding:.1em .35em;-webkit-border-radius:.25em;border-radius:.25em;font-size:.72em;letter-spacing:.03em;line-height:1.5}.nova-wide .nova-card__descr{font-size:.85em;line-height:1.35;opacity:.5;overflow:hidden;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical}.nova-wide .nova-card--wide .nova-card__meta{font-size:.8em;opacity:.5}.nova-wide .nova-card__eye{position:absolute;top:.42em;right:.42em;left:auto;bottom:auto;z-index:3;width:1.28em;height:1.28em;padding:.12em;-webkit-border-radius:.32em;border-radius:.32em;background:rgba(10,11,17,.62);-webkit-box-shadow:inset 0 0 0 .08em rgba(255,255,255,.08),0 .08em .28em rgba(0,0,0,.25);box-shadow:inset 0 0 0 .08em rgba(255,255,255,.08),0 .08em .28em rgba(0,0,0,.25)}.nova-wide .nova-card__eye svg,.nova-wide .nova-card__viewed svg{width:100%;height:100%;display:block}.nova-wide .nova-card__viewed{top:.42em;right:.42em;left:auto;bottom:auto;z-index:3;width:1.28em;height:1.28em;padding:.12em;-webkit-border-radius:.32em;border-radius:.32em;background:rgba(10,11,17,.62);-webkit-box-shadow:inset 0 0 0 .08em rgba(255,255,255,.08),0 .08em .28em rgba(0,0,0,.25);box-shadow:inset 0 0 0 .08em rgba(255,255,255,.08),0 .08em .28em rgba(0,0,0,.25)}.nova-wide .nova-card--nav{-webkit-flex:0 0 100%;-ms-flex:0 0 100%;flex:0 0 100%;width:100%;max-width:100%}@media screen and (max-width:1100px){.nova-wide>.nova__hero,.nova-wide>.nova__rows{-webkit-flex:0 0 100%;-ms-flex:0 0 100%;flex:0 0 100%;width:100%;max-width:100%;padding:0}.nova-wide>.nova__rows{margin-top:1em}.nova-wide>.nova-wide__strip{padding-left:0}.nova-wide__bar{-webkit-flex-wrap:wrap;-ms-flex-wrap:wrap;flex-wrap:wrap}.nova-wide .nova-card--wide{-webkit-flex:0 0 33.3333%;-ms-flex:0 0 33.3333%;flex:0 0 33.3333%;width:33.3333%;max-width:33.3333%}}@media screen and (max-width:640px){.nova-wide .nova-card--wide{-webkit-flex:0 0 50%;-ms-flex:0 0 50%;flex:0 0 50%;width:50%;max-width:50%}.nova-wide .nova-card__descr{display:none}.nova-wide .nova-hero__title{max-width:100%}.nova-wide .nova-hero__hint{max-width:100%;-webkit-flex-basis:100%;-ms-flex-preferred-size:100%;flex-basis:100%}}";
 
   var SKIN_CSS = ".nova{padding:0 0 3em 0}.nova *{-webkit-box-sizing:border-box;box-sizing:border-box}.nova-hero{position:relative;overflow:hidden;-webkit-border-radius:1.2em;border-radius:1.2em;margin-bottom:1.7em;background:rgba(255,255,255,.06);min-height:13em}.nova-hero--compact{min-height:0;margin-bottom:1.3em}.nova-hero--compact .nova-hero__body{padding:1.1em 1.4em;max-width:100%;min-height:5.2em;display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-box-orient:vertical;-webkit-box-direction:normal;-webkit-flex-direction:column;-ms-flex-direction:column;flex-direction:column;-webkit-box-pack:center;-webkit-justify-content:center;-ms-flex-pack:center;justify-content:center}.nova-hero--compact .nova-hero__actions{margin:0}.nova-hero--compact .nova-btn--main{margin-bottom:0}.nova-hero--compact .nova-hero__season{margin:.6em 0 0 .2em;font-size:.95em;opacity:.55}.nova-hero--compact .nova-hero__progress{position:absolute;left:0;right:0;bottom:0;width:auto;height:.3em;margin:0;-webkit-border-radius:0;border-radius:0}.nova-hero--compact .nova-hero__shade{background:-webkit-linear-gradient(left,rgba(10,11,17,.88) 0%,rgba(10,11,17,.6) 45%,rgba(10,11,17,.15) 100%);background:linear-gradient(90deg,rgba(10,11,17,.88) 0%,rgba(10,11,17,.6) 45%,rgba(10,11,17,.15) 100%)}.nova-hero__bg{position:absolute;top:0;left:0;right:0;bottom:0}.nova-hero__bg img{display:block;width:100%;height:100%;-o-object-fit:cover;object-fit:cover;opacity:0;-webkit-transition:opacity .35s;transition:opacity .35s}.nova-hero__bg--loaded img{opacity:1}.nova-hero__shade{position:absolute;top:0;left:0;right:0;bottom:0;background:-webkit-linear-gradient(left,rgba(10,11,17,.9) 0%,rgba(10,11,17,.62) 32%,rgba(10,11,17,.2) 62%,rgba(10,11,17,0) 84%);background:linear-gradient(90deg,rgba(10,11,17,.9) 0%,rgba(10,11,17,.62) 32%,rgba(10,11,17,.2) 62%,rgba(10,11,17,0) 84%)}.nova-hero__body{position:relative;padding:2.2em;max-width:72%}.nova-hero__title{font-size:2.3em;font-weight:600;line-height:1.15;margin-bottom:.35em;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}.nova-hero__meta{display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-flex-wrap:wrap;-ms-flex-wrap:wrap;flex-wrap:wrap;-webkit-box-align:center;-webkit-align-items:center;-ms-flex-align:center;align-items:center;font-size:1.1em;margin-bottom:.7em}.nova-hero__meta>*{margin:0 .7em .3em 0;opacity:.8}.nova-hero__meta>.nova-badge{opacity:1}.nova-hero__descr{font-size:1.05em;line-height:1.45;opacity:.65;margin-bottom:1.2em;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}.nova-hero__actions{display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-flex-wrap:wrap;-ms-flex-wrap:wrap;flex-wrap:wrap;-webkit-box-align:center;-webkit-align-items:center;-ms-flex-align:center;align-items:center;min-width:0}.nova-hero__actions>.nova-btn{-webkit-flex-shrink:0;-ms-flex-negative:0;flex-shrink:0;margin:0 .8em .4em 0}.nova-hero__hint{font-size:1em;line-height:1.5;opacity:.55;margin:0;padding:.1em .15em;overflow:hidden;white-space:nowrap;-o-text-overflow:ellipsis;text-overflow:ellipsis;min-width:0;-webkit-box-flex:1;-webkit-flex:1 1 14em;-ms-flex:1 1 14em;flex:1 1 14em}.nova-hero__progress{position:absolute;left:0;right:0;bottom:0;height:.3em;width:auto;-webkit-border-radius:0;border-radius:0;background:rgba(255,255,255,.2);margin:0;overflow:hidden}.nova-hero__progress .time-line{display:block !important;height:100%;margin:0;background:none}.nova-hero__progress .time-line>div{height:100%;background:#fff}.nova-badge{display:inline-block;padding:.2em .55em;-webkit-border-radius:.35em;border-radius:.35em;background:rgba(255,255,255,.18);font-size:.78em;font-weight:600;letter-spacing:.04em;line-height:1.4}.nova-btn{position:relative;display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-box-align:center;-webkit-align-items:center;-ms-flex-align:center;align-items:center;padding:.7em 1.5em;-webkit-border-radius:2.4em;border-radius:2.4em;background:rgba(255,255,255,.12);font-size:1.15em;white-space:nowrap;margin:0 .8em .5em 0}.nova-btn>svg{width:1.15em;height:1.15em;margin-right:.6em;-webkit-flex-shrink:0;-ms-flex-negative:0;flex-shrink:0}.nova-btn.focus{background:#fff;color:#000}.nova-btn--main{background:rgba(255,255,255,.82);color:#000}.nova-btn--main.focus{background:#fff;-webkit-box-shadow:0 .25em .9em rgba(0,0,0,.45);box-shadow:0 .25em .9em rgba(0,0,0,.45)}.nova-btn--ghost{background:rgba(255,255,255,.14);font-size:1.05em}.nova-section{margin-bottom:1.1em}.nova-section__title{display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-box-align:center;-webkit-align-items:center;-ms-flex-align:center;align-items:center;font-size:.95em;letter-spacing:.12em;text-transform:uppercase;opacity:.5;margin-bottom:.7em}.nova-section__title:before{content:\"\";display:inline-block;width:.25em;height:1.1em;background:currentColor;margin-right:.6em;-webkit-border-radius:.2em;border-radius:.2em}.nova-section__body{display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-flex-wrap:wrap;-ms-flex-wrap:wrap;flex-wrap:wrap;-webkit-box-align:center;-webkit-align-items:center;-ms-flex-align:center;align-items:center}.nova-chip{position:relative;display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-box-align:center;-webkit-align-items:center;-ms-flex-align:center;align-items:center;padding:.55em 1.1em;-webkit-border-radius:2em;border-radius:2em;background:rgba(255,255,255,.07);margin:0 .7em .7em 0;font-size:1.05em;white-space:nowrap;max-width:24em}.nova-chip.focus{background:#fff;color:#000}.nova-chip--active{background:rgba(255,255,255,.16);-webkit-box-shadow:inset 0 0 0 .1em rgba(255,255,255,.5);box-shadow:inset 0 0 0 .1em rgba(255,255,255,.5)}.nova-chip--active.focus{-webkit-box-shadow:0 .2em .7em rgba(0,0,0,.4);box-shadow:0 .2em .7em rgba(0,0,0,.4)}.nova-chip__idx{font-size:.85em;opacity:.45;margin-right:.55em}.nova-chip__badge{font-size:.7em;font-weight:600;padding:.2em .45em;-webkit-border-radius:.35em;border-radius:.35em;background:rgba(255,255,255,.2);margin-right:.6em;line-height:1.4}.nova-chip.focus .nova-chip__badge{background:rgba(0,0,0,.12)}.nova-chip--more{opacity:.75}.nova-chip__label{line-height:1.5;padding:.05em .1em;overflow:hidden;-o-text-overflow:ellipsis;text-overflow:ellipsis;min-width:0}.nova-chip>svg{width:1em;height:1em;-webkit-flex-shrink:0;-ms-flex-negative:0;flex-shrink:0}.nova-chip__label+svg{margin-left:.6em;opacity:.6}.nova-chip>svg:first-child{margin-right:.55em;opacity:.7}.nova-chip--source{font-size:1.15em;padding:.5em 1.1em}.nova-chip--ghost{opacity:.5}.nova-chip--busy .nova-chip__label{opacity:.5}.nova-chip__dot{width:.5em;height:.5em;-webkit-border-radius:50%;border-radius:50%;margin-left:.6em;-webkit-flex-shrink:0;-ms-flex-negative:0;flex-shrink:0;background:#4ade80}.nova-chip--checking{opacity:.55}.nova-chip--empty{opacity:.35}.nova-toolbar{display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-flex-wrap:nowrap;-ms-flex-wrap:nowrap;flex-wrap:nowrap;-webkit-box-align:center;-webkit-align-items:center;-ms-flex-align:center;align-items:center;margin-bottom:1em;min-width:0;overflow:hidden}.nova-toolbar>*{margin-bottom:0;vertical-align:middle}.nova-toolbar .nova-chip{-webkit-flex-shrink:1;-ms-flex-negative:1;flex-shrink:1;min-width:4.5em;margin-bottom:0}.nova-toolbar__label{font-size:.95em;letter-spacing:.12em;text-transform:uppercase;opacity:.45;margin:0 .9em 0 0;-webkit-flex-shrink:0;-ms-flex-negative:0;flex-shrink:0}.nova-toolbar--tight{font-size:.95em}.nova-toolbar--tight .nova-toolbar__label{display:none}.nova-toolbar--tight .nova-chip{-webkit-flex-shrink:0;-ms-flex-negative:0;flex-shrink:0;max-width:none;padding:.5em 1em;margin-right:.6em}.nova-toolbar--tighter{font-size:.85em}.nova-toolbar--tighter .nova-toolbar__label{display:none}.nova-toolbar--tighter .nova-chip{-webkit-flex-shrink:0;-ms-flex-negative:0;flex-shrink:0;max-width:none;padding:.45em .85em;margin-right:.5em}.nova-toolbar--tighter .nova-chip__badge{margin-right:.4em}.nova-toolbar .nova-btn--main{margin:0 1.4em 0 0;font-size:1.1em;padding:.55em 1.3em}.nova-toolbar .nova-btn__label{max-width:18em;overflow:hidden;-o-text-overflow:ellipsis;text-overflow:ellipsis;white-space:nowrap}.nova-card{position:relative;display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-box-align:center;-webkit-align-items:center;-ms-flex-align:center;align-items:center;padding:.7em;-webkit-border-radius:.9em;border-radius:.9em;background:rgba(255,255,255,.05);margin-bottom:.7em}.nova-card.focus{background:#fff;color:#000}.nova-card__thumb{position:relative;width:10.5em;height:5.9em;-webkit-flex-shrink:0;-ms-flex-negative:0;flex-shrink:0;-webkit-border-radius:.5em;border-radius:.5em;overflow:hidden;background:rgba(0,0,0,.35)}.nova-card__thumb img{position:absolute;top:0;left:0;width:100%;height:100%;-o-object-fit:cover;object-fit:cover;opacity:0;-webkit-transition:opacity .3s;transition:opacity .3s}.nova-card__thumb--loaded img{opacity:1}.nova-card__num>span{display:inline-block;padding:.06em .38em;-webkit-border-radius:.35em;border-radius:.35em;background:rgba(10,11,17,.62);-webkit-box-shadow:0 .12em .45em rgba(0,0,0,.4);box-shadow:0 .12em .45em rgba(0,0,0,.4)}.nova-card__thumb:not(.nova-card__thumb--loaded) .nova-card__num>span,.nova-card__thumb--fallback .nova-card__num>span,.nova-card__thumb--poster .nova-card__num>span{padding:0;background:none;-webkit-box-shadow:none;box-shadow:none}.nova-card__num{position:absolute;top:0;left:0;right:0;bottom:0;display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-box-align:center;-webkit-align-items:center;-ms-flex-align:center;align-items:center;-webkit-box-pack:center;-webkit-justify-content:center;-ms-flex-pack:center;justify-content:center;font-size:1.7em;font-weight:600;color:#fff;text-shadow:0 .05em .2em rgba(0,0,0,.7)}.nova-card__thumb--loaded .nova-card__num{-webkit-box-pack:end;-webkit-justify-content:flex-end;-ms-flex-pack:end;justify-content:flex-end;-webkit-box-align:end;-webkit-align-items:flex-end;-ms-flex-align:end;align-items:flex-end;font-size:1.1em;padding:0 .5em .35em 0}.nova-card__thumb--fallback.nova-card__thumb--loaded img{opacity:.4}.nova-card__thumb--fallback.nova-card__thumb--loaded .nova-card__num{-webkit-box-pack:center;-webkit-justify-content:center;-ms-flex-pack:center;justify-content:center;-webkit-box-align:center;-webkit-align-items:center;-ms-flex-align:center;align-items:center;font-size:1.7em;padding:0}.nova-card__viewed{position:absolute;top:.5em;left:.5em;width:.5em;height:.5em;-webkit-border-radius:50%;border-radius:50%;background:#fff;opacity:.85;-webkit-box-shadow:0 0 0 .16em rgba(0,0,0,.4);box-shadow:0 0 0 .16em rgba(0,0,0,.4)}.nova-card__line{position:absolute;left:0;right:0;bottom:0;height:.28em;background:rgba(0,0,0,.5)}.nova-card__line .time-line{display:block !important;height:100%;margin:0;background:none}.nova-card__line .time-line>div{height:100%;background:#fff}.nova-card__body{-webkit-box-flex:1;-webkit-flex-grow:1;-ms-flex-positive:1;flex-grow:1;padding:0 1.2em;min-width:1em;overflow:hidden}.nova-card__title{font-size:1.25em;line-height:1.4;margin-bottom:.3em;padding-bottom:.05em;overflow:hidden;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical}.nova-card__meta{font-size:.95em;line-height:1.45;opacity:.6;padding-bottom:.05em;overflow:hidden;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical}.nova-card__meta .nova-dot{margin:0 .5em;opacity:.6}.nova-card__match{display:inline-block;margin-top:.4em;padding:.15em .6em;-webkit-border-radius:.35em;border-radius:.35em;background:rgba(126,217,150,.2);color:#8fe0a4;font-size:.82em;font-weight:600}.nova-card--match .nova-card__thumb{-webkit-box-shadow:inset 0 0 0 .13em rgba(126,217,150,.75);box-shadow:inset 0 0 0 .13em rgba(126,217,150,.75)}.nova-card__side{-webkit-flex-shrink:0;-ms-flex-negative:0;flex-shrink:0;text-align:center;padding-right:.7em}.nova-card__time{font-size:.95em;opacity:.6;margin-top:.4em}.nova-card--nav .nova-card__body{display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-box-align:center;-webkit-align-items:center;-ms-flex-align:center;align-items:center}.nova-card--nav .nova-card__body{-webkit-flex-wrap:wrap;-ms-flex-wrap:wrap;flex-wrap:wrap}.nova-card--nav .nova-card__title{-webkit-box-flex:1;-webkit-flex-grow:1;-ms-flex-positive:1;flex-grow:1;margin-bottom:0}.nova-card--nav .nova-card__meta{width:100%;margin-top:.2em;font-size:.85em}.nova-card__go{-webkit-flex-shrink:0;-ms-flex-negative:0;flex-shrink:0;opacity:.45;padding-left:1em}.nova-card__go>svg{width:1.2em;height:1.2em;-webkit-transform:rotate(-90deg);transform:rotate(-90deg)}.nova-card--slim{padding:.75em 1.1em}.nova-card--slim .nova-card__thumb{display:none}.nova-card--slim .nova-card__body{padding-left:0}.nova-card--slim .nova-card__title{font-size:1.2em;margin-bottom:0}.nova-card__line--body{position:static;height:.25em;margin-top:.55em;-webkit-border-radius:.2em;border-radius:.2em;background:rgba(255,255,255,.18)}.nova-card.focus .nova-card__line--body{background:rgba(0,0,0,.16)}.nova-card.focus .nova-card__line--body .time-line>div{background:#000}.nova-card--slim .nova-card__line{position:static;height:.25em;margin-top:.5em;-webkit-border-radius:.2em;border-radius:.2em;background:rgba(255,255,255,.16)}.nova-card--slim.focus .nova-card__line{background:rgba(0,0,0,.15)}.nova-card--slim.focus .nova-card__line .time-line>div{background:#000}.nova-list-group{font-size:.9em;letter-spacing:.12em;text-transform:uppercase;opacity:.45;margin:1.2em 0 .55em .2em}.nova-list-group:first-child{margin-top:0}.nova-card--file .nova-card__thumb{width:4.4em;height:4.4em}.nova-skeleton__row{display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-box-align:center;-webkit-align-items:center;-ms-flex-align:center;align-items:center;padding:.7em;-webkit-border-radius:.9em;border-radius:.9em;background:rgba(255,255,255,.04);margin-bottom:.7em;-webkit-animation:novapulse 1.4s infinite;animation:novapulse 1.4s infinite}.nova-skeleton__thumb{width:10.5em;height:5.9em;-webkit-border-radius:.5em;border-radius:.5em;background:rgba(255,255,255,.08);-webkit-flex-shrink:0;-ms-flex-negative:0;flex-shrink:0}.nova-skeleton__body{-webkit-box-flex:1;-webkit-flex-grow:1;-ms-flex-positive:1;flex-grow:1;padding-left:1.2em}.nova-skeleton__line{height:1em;-webkit-border-radius:.3em;border-radius:.3em;background:rgba(255,255,255,.08);margin-bottom:.7em}.nova-skeleton__line--short{width:35%;margin-bottom:0}@-webkit-keyframes novapulse{0%{opacity:.45}50%{opacity:1}100%{opacity:.45}}@keyframes novapulse{0%{opacity:.45}50%{opacity:1}100%{opacity:.45}}.nova-loading{padding:1.6em 1.8em;-webkit-border-radius:1em;border-radius:1em;background:rgba(255,255,255,.05);margin-bottom:1.2em}.nova-loading__title{font-size:1.4em;margin-bottom:.35em}.nova-loading__text{font-size:1.05em;opacity:.6;margin-bottom:1em}.nova-loading__bar{position:relative;height:.3em;-webkit-border-radius:.3em;border-radius:.3em;background:rgba(255,255,255,.14);overflow:hidden}.nova-loading__bar>div{height:100%;width:0;background:#fff;-webkit-transition:width .4s;transition:width .4s}.nova-note{display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-box-align:center;-webkit-align-items:center;-ms-flex-align:center;align-items:center;padding:2em;-webkit-border-radius:1em;border-radius:1em;background:rgba(255,255,255,.05)}.nova-note__main{-webkit-box-flex:1;-webkit-flex-grow:1;-ms-flex-positive:1;flex-grow:1;min-width:1em}.nova-note__text a{color:#fff;text-decoration:underline}.nova-note__text img{max-width:9em;height:auto;background:#fff;padding:.4em;-webkit-border-radius:.4em;border-radius:.4em;margin-top:.7em;opacity:1}.nova-note__text ul,.nova-note__text ol{margin:.5em 0;padding-left:1.2em}.nova-note__title{font-size:1.6em;margin-bottom:.4em;line-height:1.25}.nova-note__text{font-size:1.1em;color:rgba(255,255,255,.62);margin-bottom:1.3em;line-height:1.4}.nova-note__actions{display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-flex-wrap:wrap;-ms-flex-wrap:wrap;flex-wrap:wrap}.nova-note__timer{font-weight:600}.nova-group{display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-box-align:center;-webkit-align-items:center;-ms-flex-align:center;align-items:center;padding:.5em 1.1em;-webkit-border-radius:2em;border-radius:2em;background:rgba(255,255,255,.07);margin:0 .7em .7em 0;font-size:1.1em;white-space:nowrap}.nova-group.focus{background:#fff;color:#000}.nova-group--open{background:rgba(255,255,255,.2);-webkit-box-shadow:inset 0 0 0 .1em rgba(255,255,255,.5);box-shadow:inset 0 0 0 .1em rgba(255,255,255,.5)}.nova-group--open.focus{-webkit-box-shadow:0 .2em .7em rgba(0,0,0,.4);box-shadow:0 .2em .7em rgba(0,0,0,.4)}.nova-group__count{font-size:.78em;opacity:.55;margin-left:.6em}.nova-group__mark{width:.5em;height:.5em;-webkit-border-radius:50%;border-radius:50%;background:#fff;margin-right:.6em;-webkit-flex-shrink:0;-ms-flex-negative:0;flex-shrink:0}.nova-drop{display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-flex-wrap:wrap;-ms-flex-wrap:wrap;flex-wrap:wrap;-webkit-box-align:center;-webkit-align-items:center;-ms-flex-align:center;align-items:center;padding:.3em 0 0 1em;margin:0 0 .7em .3em;-webkit-box-shadow:inset .16em 0 0 rgba(255,255,255,.18);box-shadow:inset .16em 0 0 rgba(255,255,255,.18)}.nova__list--grid{display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-flex-wrap:wrap;-ms-flex-wrap:wrap;flex-wrap:wrap;margin:0 -.45em}.nova__list--grid .nova-card{display:block;width:25%;margin:0 0 1em 0;padding:0 .45em;background:none}.nova__list--grid .nova-card.focus{background:none;color:inherit}.nova__list--grid .nova-card__thumb{width:100%;height:0;padding-top:56%}.nova__list--grid .nova-card--file .nova-card__thumb{width:100%;height:0;padding-top:56%}.nova__list--grid .nova-card.focus .nova-card__thumb{-webkit-box-shadow:0 0 0 .2em #fff;box-shadow:0 0 0 .2em #fff}.nova__list--grid .nova-card__body{padding:.5em .1em 0 .1em}.nova__list--grid .nova-card__title{font-size:.92em;line-height:1.3;margin-bottom:.15em;-webkit-line-clamp:2}.nova__list--grid .nova-card__meta{font-size:.78em;line-height:1.35;-webkit-line-clamp:2}.nova__list--grid .nova-card__meta .nova-dot{margin:0 .3em}.nova__list--grid .nova-card__match{margin-top:.25em;font-size:.72em;padding:.1em .45em}.nova__list--grid .nova-card__side{position:absolute;top:.5em;right:.9em;text-align:right}.nova__list--grid .nova-card__time{display:none}.nova__list--grid .nova-card__num{-webkit-box-pack:start;-webkit-justify-content:flex-start;-ms-flex-pack:start;justify-content:flex-start;-webkit-box-align:start;-webkit-align-items:flex-start;-ms-flex-align:start;align-items:flex-start;padding:.4em 0 0 .55em;font-size:1.05em}.nova-hero__season{font-size:.95em;opacity:.55;margin-top:.8em}@media screen and (max-width:1200px){.nova__list--grid .nova-card{width:33.3333%}}@media screen and (max-width:580px){.nova__list--grid .nova-card{width:50%}.nova-hero__body{max-width:100%;padding:1.3em}.nova-hero__title{font-size:1.7em}.nova-hero__descr{display:none}.nova-hero__shade{background:-webkit-linear-gradient(top,rgba(10,11,17,0) 0%,rgba(10,11,17,.35) 42%,rgba(10,11,17,.86) 100%);background:linear-gradient(180deg,rgba(10,11,17,0) 0%,rgba(10,11,17,.35) 42%,rgba(10,11,17,.86) 100%)}.nova-card__thumb{width:7em;height:4.4em}.nova-chip{max-width:16em}}";
 
