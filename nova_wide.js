@@ -13,7 +13,6 @@
   var LOGO_BRIGHT_SHARE = 0.12;
   var LOGO_TONE_KEY = 'nova_wide_logo_tone2';
   var LOGO_BLIND = {};
-
   var filters = [];
   var scrolls = [];
 
