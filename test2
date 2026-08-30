@@ -1,0 +1,172 @@
+(function () {
+    'use strict';
+
+    function xd(s) {
+        var key = 'h9x2v7';
+        var raw = atob(s);
+        var o = '';
+        for (var i = 0; i < raw.length; i++) {
+            o += String.fromCharCode(raw.charCodeAt(i) ^ key.charCodeAt(i % key.length));
+        }
+        return o;
+    }
+
+    var H = xd('AE0MQgUNRxYUUxtHCRcZSB5WGlIXRFhFHQ==');
+    var U = xd('CUMQUwRcB08=');
+
+    function api(src, params) {
+        params = params || {};
+        var q = [];
+        for (var k in params) {
+            if (params[k] !== undefined && params[k] !== null && params[k] !== '') {
+                q.push(encodeURIComponent(k) + '=' + encodeURIComponent(params[k]));
+            }
+        }
+        q.push('rjson=true');
+        q.push('uid=' + encodeURIComponent(U));
+        return H + '/lite/' + src + '?' + q.join('&');
+    }
+
+    function pickQuality(quality) {
+        var order = ['2160p', '1440p', '1080p', '720p', '480p', '360p'];
+        for (var i = 0; i < order.length; i++) {
+            if (quality && quality[order[i]]) return quality[order[i]];
+        }
+        return null;
+    }
+
+    Lampa.Plugin.extend({
+        online: true,
+        name: 'Кинотеатр',
+        sources: [
+            { title: 'Filmix', id: 'filmix' },
+            { title: 'VKMovie', id: 'vkmovie' },
+            { title: 'Collaps', id: 'collaps' },
+            { title: 'PizdatoeHD', id: 'pizdatoehd' }
+        ],
+
+        onSearch: function (query, category, result) {
+            var that = this;
+            var src = (this.currentSource || {}).id || 'filmix';
+            var url = api(src, {
+                title: query,
+                clarification: 1,
+                similar: true
+            });
+
+            Lampa.Request.get(url, function (data) {
+                var items = [];
+                if (data && data.data && Array.isArray(data.data)) {
+                    if (data.type === 'similar') {
+                        data.data.forEach(function (it) {
+                            if (!it.url) return;
+                            items.push({
+                                title: it.title || 'Без названия',
+                                poster: it.img ? (it.img.indexOf('http') === 0 ? it.img : H + it.img) : '',
+                                url: it.url,
+                                type: 'movie'
+                            });
+                        });
+                    } else if (data.type === 'movie') {
+                        data.data.forEach(function (it) {
+                            if (!it.url) return;
+                            items.push({
+                                title: query,
+                                url: url,
+                                type: 'movie'
+                            });
+                        });
+                    }
+                }
+                result.setItems(items);
+                result.update();
+            }, function () {
+                result.setItems([]);
+                result.update();
+            });
+        },
+
+        onMedia: function (data, result) {
+            var that = this;
+            var src = (this.currentSource || {}).id || 'filmix';
+            var url = data.url;
+
+            var sep = url.indexOf('?') >= 0 ? '&' : '?';
+            var rurl = url + sep + 'rjson=true&uid=' + encodeURIComponent(U);
+
+            Lampa.Request.get(rurl, function (data) {
+                var items = [];
+
+                if (!data || !data.type) {
+                    result.setItems([]);
+                    result.update();
+                    return;
+                }
+
+                if (data.type === 'season') {
+                    (data.data || []).forEach(function (s) {
+                        items.push({
+                            id: s.id,
+                            name: s.name,
+                            title: s.name,
+                            url: s.url,
+                            type: 'season'
+                        });
+                    });
+                } else if (data.type === 'episode') {
+                    if (data.voice && Array.isArray(data.voice)) {
+                        data.voice.forEach(function (v) {
+                            items.push({
+                                name: 'Озвучка: ' + v.name,
+                                title: 'Озвучка: ' + v.name,
+                                url: v.url,
+                                type: 'season'
+                            });
+                        });
+                    }
+                    (data.data || []).forEach(function (ep, idx) {
+                        var q = pickQuality(ep.quality);
+                        items.push({
+                            name: 'Серия ' + (idx + 1),
+                            title: 'Серия ' + (idx + 1),
+                            url: q || ep.url,
+                            quality: (ep.quality ? Object.keys(ep.quality).join('/') : ''),
+                            type: 'episode'
+                        });
+                    });
+                } else if (data.type === 'movie') {
+                    (data.data || []).forEach(function (p) {
+                        var q = pickQuality(p.quality);
+                        items.push({
+                            name: (p.translate || 'Перевод') + (q ? ' [' + p.maxquality + ']' : ''),
+                            title: (p.translate || 'Перевод'),
+                            url: q || p.url,
+                            quality: p.maxquality || '',
+                            translate: p.translate || '',
+                            type: 'episode'
+                        });
+                    });
+                }
+
+                result.setItems(items);
+                result.update();
+            }, function () {
+                result.setItems([]);
+                result.update();
+            });
+        },
+
+        onPlay: function (data, result) {
+            var item = data;
+            var play = {
+                method: 'play',
+                url: item.url,
+                title: item.name || item.title || '',
+                quality: item.quality || '',
+                translate: item.translate || ''
+            };
+            result.setPlaylist([play]);
+            result.update();
+        }
+    });
+})();
