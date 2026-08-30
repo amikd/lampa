@@ -20,7 +20,7 @@
 
   var Defined = {
     api: 'lampac',
-    localhost: 'AE0MQgUNRxYUUxtHCRcZSB5WGlIXRFhFHQ==/',
+    localhost: H + '/',
     apn: ''
   };
 
@@ -109,7 +109,7 @@
     if (balansers_with_search == undefined) {
       network.timeout(REQUEST_TIMEOUT);
       network.silent(
-        account('AE0MQgUNRxYUUxtHCRcZSB5WGlIXRFhFHQ==/lite/withsearch'),
+        account(H + '/lite/withsearch'),
         function (json) {
           balansers_with_search = json.filter(function (b) { return ['filmix','vkmovie','collaps','pizdatoehd'].indexOf(b) != -1; });
         },
