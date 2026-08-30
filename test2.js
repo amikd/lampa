@@ -274,12 +274,13 @@
     };
     this.externalids = function () {
       return new Promise(function (resolve, reject) {
+        if (!object.movie || !object.movie.id) { resolve(); return; }
         if (!object.movie.imdb_id || !object.movie.kinopoisk_id) {
           var query = [];
           query.push('id=' + encodeURIComponent(object.movie.id));
-          query.push('serial=' + (object.movie.name ? 1 : 0));
-          if (object.movie.imdb_id) query.push('imdb_id=' + (object.movie.imdb_id || ''));
-          if (object.movie.kinopoisk_id) query.push('kinopoisk_id=' + (object.movie.kinopoisk_id || ''));
+          query.push('serial=' + (object.movie && object.movie.name ? 1 : 0));
+          if (object.movie && object.movie.imdb_id) query.push('imdb_id=' + (object.movie.imdb_id || ''));
+          if (object.movie && object.movie.kinopoisk_id) query.push('kinopoisk_id=' + (object.movie.kinopoisk_id || ''));
           var url = Defined.localhost + 'externalids?' + query.join('&');
           network.timeout(REQUEST_TIMEOUT);
           network.silent(
@@ -318,14 +319,14 @@
     };
     this.requestParams = function (url) {
       var query = [];
-      var card_source = object.movie.source || 'tmdb'; //Lampa.Storage.field('source')
-      query.push('id=' + encodeURIComponent(object.movie.id));
+      var card_source = (object.movie && object.movie.source) || 'tmdb'; //Lampa.Storage.field('source')
+      query.push('id=' + encodeURIComponent((object.movie && object.movie.id) || 0));
 
-      if (object.movie.imdb_id) query.push('imdb_id=' + (object.movie.imdb_id || ''));
-      if (object.movie.kinopoisk_id) query.push('kinopoisk_id=' + (object.movie.kinopoisk_id || ''));
-      if (object.movie.tmdb_id) query.push('tmdb_id=' + (object.movie.tmdb_id || ''));
+      if (object.movie && object.movie.imdb_id) query.push('imdb_id=' + (object.movie.imdb_id || ''));
+      if (object.movie && object.movie.kinopoisk_id) query.push('kinopoisk_id=' + (object.movie.kinopoisk_id || ''));
+      if (object.movie && object.movie.tmdb_id) query.push('tmdb_id=' + (object.movie.tmdb_id || ''));
 
-      if (object.movie.keywords && object.movie.keywords.results) {
+      if (object.movie && object.movie.keywords && object.movie.keywords.results) {
         for (var i = 0, a = object.movie.keywords.results; i < a.length; i++) {
           if (a[i].name == 'anime') {
             query.push('anime=1');
@@ -335,11 +336,11 @@
       }
 
       query.push(
-        'title=' + encodeURIComponent(object.clarification ? object.search : object.movie.title || object.movie.name)
+        'title=' + encodeURIComponent((object.movie && (object.clarification ? object.search : (object.movie.title || object.movie.name))) || object.search || '')
       );
-      query.push('original_title=' + encodeURIComponent(object.movie.original_title || object.movie.original_name));
-      query.push('serial=' + (object.movie.name ? 1 : 0));
-      query.push('original_language=' + (object.movie.original_language || ''));
+      query.push('original_title=' + encodeURIComponent((object.movie && (object.movie.original_title || object.movie.original_name)) || ''));
+      query.push('serial=' + (object.movie && object.movie.name ? 1 : 0));
+      query.push('original_language=' + ((object.movie && object.movie.original_language) || ''));
       query.push('year=' + ((object.movie.release_date || object.movie.first_air_date || '0000') + '').slice(0, 4));
       query.push('source=' + card_source);
       query.push('clarification=' + (object.clarification ? 1 : 0));
@@ -478,7 +479,8 @@
     this.createSource = function () {
       var _this4 = this;
       return new Promise(function (resolve, reject) {
-        var url = _this4.requestParams(Defined.localhost + 'lite/events?life=true');
+        var url = account(Defined.localhost + 'lite/events?life=true');
+        if (object.movie && object.movie.id) url = _this4.requestParams(Defined.localhost + 'lite/events?life=true');
         network.silent(
           account(url),
           function (json) {
@@ -497,6 +499,7 @@
                 );
               _this4.lifeSource().then(_this4.startSource).then(resolve)['catch'](reject);
             } else {
+              json = json.filter(function (j) { return ['filmix','vkmovie','collaps','pizdatoehd'].indexOf(j.balanser) != -1; });
               _this4.startSource(json).then(resolve)['catch'](reject);
             }
           },
