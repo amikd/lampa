@@ -1825,7 +1825,7 @@
         Lampa.Activity.push({
           url: params.element.url,
           title: 'Lampac - ' + params.element.title,
-          component: 'lampac',
+          component: 'kino',
           movie: params.element,
           page: 1,
           search: params.element.title,
@@ -1840,16 +1840,16 @@
   }
 
   function startPlugin() {
-    if (window.lampa_settings && window.lampa_settings.read_only) return;
+    
 
-    window.lampac_plugin = true;
-    Lampa.Component.add('lampac', component);
+    window.kino_plugin = true;
+    Lampa.Component.add('kino', component);
     var manifest = {
       type: 'video',
       version: LAMPAC_VERSION,
       name: 'Кинотеатр',
       description: 'Онлайн кинотеатр',
-      component: 'lampac',
+      component: 'kino',
       onContextMenu: function onContextMenu(object) {
         return {
           name: Lampa.Lang.translate('lampac_watch'),
@@ -1865,7 +1865,7 @@
         Lampa.Activity.push({
           url: '',
           title: Lampa.Lang.translate('title_online'),
-          component: 'lampac',
+          component: 'kino',
           search: all[id] ? all[id] : object.title,
           search_one: object.title,
           search_two: object.original_title,
@@ -2494,7 +2494,7 @@
         Lampa.Activity.push({
           url: '',
           title: Lampa.Lang.translate('title_online'),
-          component: 'lampac',
+          component: 'kino',
           search: all[id] ? all[id] : e.movie.title,
           search_one: e.movie.title,
           search_two: e.movie.original_title,
@@ -2582,5 +2582,5 @@
       Lampa.Storage.sync('online_watched_last', 'object_object');
     }
   }
-  if (!window.lampac_plugin) startPlugin();
+  if (!window.kino_plugin) startPlugin();
 })();
