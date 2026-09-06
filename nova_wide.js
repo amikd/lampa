@@ -5374,6 +5374,11 @@
 
     var ranked = wideRowsTall(rows);
     ranked.forEach(function (entry) {
+      var isVoice = entry.row.parent().attr('data-nova-group') === 'voice';
+      if (!isVoice) {
+        wideSqueeze(entry.row);
+        return;
+      }
       var count = wideRoomLines(entry.row, edge);
       if (count > 1) wideBand(entry.row, count);
       else wideSqueeze(entry.row);
@@ -5382,7 +5387,8 @@
     while (widePanelTall(panel, hero)) {
       var candidate = null;
       ranked.forEach(function (entry) {
-        if (!entry.row.hasClass('nova-wide__row--pair')) return;
+        if (entry.row.parent().attr('data-nova-group') !== 'voice' ||
+            !entry.row.hasClass('nova-wide__row--pair')) return;
         var current = Math.max(1, Math.round((parseFloat(entry.row.css('height')) || 0) /
           Math.max(1, (wideMetric(entry.row) || {}).high || 1)));
         if (!candidate || current > candidate.current) candidate = { entry: entry, current: current };
