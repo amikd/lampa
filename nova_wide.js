@@ -4992,6 +4992,7 @@
 
     wideDrop();
     wideFit();
+    wideRefit();
   }
 
   function wideRowShift(row, value) {
@@ -5268,6 +5269,39 @@
     row.addClass('nova-wide__row--scroll');
     row.parent().addClass('nova-wide__group--scroll');
     wideDragBind(row, 'x');
+  }
+
+  var wide_refit_timers = [];
+  var wide_refit_bound = false;
+
+  function wideRefitRun() {
+    try { wideFit(); } catch (e) {}
+  }
+
+  function wideRefitWatch() {
+    if (!ui.hero_box) return;
+    try {
+      ui.hero_box.find('img').each(function () {
+        if (this.getAttribute('data-nova-refit')) return;
+        this.setAttribute('data-nova-refit', '1');
+        $(this).on('load', wideRefitRun);
+      });
+    } catch (e) {}
+  }
+
+  function wideRefit() {
+    while (wide_refit_timers.length) {
+      try { clearTimeout(wide_refit_timers.pop()); } catch (e) {}
+    }
+    var steps = [60, 240, 600, 1200];
+    for (var i = 0; i < steps.length; i++) {
+      try { wide_refit_timers.push(setTimeout(wideRefitRun, steps[i])); } catch (e) {}
+    }
+    try { if (window.requestAnimationFrame) window.requestAnimationFrame(wideRefitRun); } catch (e) {}
+    wideRefitWatch();
+    if (wide_refit_bound) return;
+    wide_refit_bound = true;
+    try { $(window).on('resize orientationchange', wideRefitRun); } catch (e) {}
   }
 
   function wideFit() {
