@@ -5322,7 +5322,20 @@
     wideRefitWatch();
     if (wide_refit_bound) return;
     wide_refit_bound = true;
-    try { $(window).on('resize orientationchange', wideRefitRun); } catch (e) {}
+    var orientationRefit = function () {
+      try {
+        if (ui.rows) ui.rows.css('min-height', '');
+        if (ui.rows && ui.rows[0]) ui.rows[0].getBoundingClientRect();
+      } catch (e) {}
+      wideRefitRun();
+      [90, 260, 620].forEach(function (delay) {
+        try { wide_refit_timers.push(setTimeout(wideRefitRun, delay)); } catch (e) {}
+      });
+    };
+    try { $(window).on('resize', wideRefitRun).on('orientationchange', orientationRefit); } catch (e) {}
+    try {
+      if (window.visualViewport) $(window.visualViewport).on('resize', orientationRefit);
+    } catch (e) {}
   }
 
   function wideFit() {
@@ -5484,10 +5497,18 @@
     var panel = ui.rows.children('.nova-wide__panel').first();
     if (!panel.length) return;
 
-    if (wideSwapOn()) wideStash(panel);
-    else wideUnstash(panel);
+    var reserve = 0;
+    if (wideSwapOn()) {
+      reserve = parseFloat(panel.attr('data-nova-reserve')) || panel[0].getBoundingClientRect().height || 0;
+      if (reserve > 0) panel.attr('data-nova-reserve', Math.ceil(reserve));
+      wideStash(panel);
+    } else {
+      wideUnstash(panel);
+      panel.removeAttr('data-nova-reserve').css('min-height', '');
+    }
 
     panel.toggleClass('nova-wide__panel--swap', wideSwapOn());
+    if (wideSwapOn() && reserve > 0) panel.css('min-height', Math.ceil(reserve) + 'px');
 
     var bar = panel.children('.nova-wide__bar').first();
     if (bar.length && widePosBottom()) {
@@ -5919,7 +5940,21 @@
       var next = wideRowSide(dir);
       if (next) return focusNode(next);
       var ownRow = $(last).closest('.nova-wide__row');
-      if (ownRow.length && ownRow.closest('[data-nova-group="season"],[data-nova-group="voice"]').length) return true;
+      var grouped = ownRow.length && ownRow.closest('[data-nova-group="season"],[data-nova-group="voice"]').length;
+      if (grouped && dir === 'left') {
+        var here = last.getBoundingClientRect();
+        var leftmost = true;
+        ownRow.find('.selector').each(function () {
+          if (this === last) return;
+          var box = this.getBoundingClientRect();
+          if (!box.width && !box.height) return;
+          var sameLine = Math.abs((box.top + box.height / 2) - (here.top + here.height / 2)) <= Math.max(6, here.height * .58);
+          if (sameLine && box.left < here.left - 2) leftmost = false;
+        });
+        if (leftmost) return wideToHeroNear(last) || true;
+        return true;
+      }
+      if (grouped) return true;
       if (dir === 'left') return wideToHeroNear(last) || true;
       return true;
     }
