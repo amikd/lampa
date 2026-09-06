@@ -4541,7 +4541,9 @@
     try { return !!(movie && (movie.name || movie.original_name || movie.number_of_seasons)); } catch (e) { return false; }
   }
 
-  function wideOn() { return wideSerial(); }
+  function wideOn() {
+    try { return !!movie; } catch (e) { return false; }
+  }
   function wideRow() { return get(WIDE_LAYOUT_KEY, 'grid') === 'row'; }
   function wideReverse() { return get(WIDE_ORDER_KEY, 'straight') === 'reverse'; }
   function wideMeta() { return get(WIDE_META_KEY, true) !== false; }
@@ -5940,6 +5942,10 @@
     if (drop && last && drop.find(last).length) {
       var belowDrop = wideStep(wideDropNodes(), 'down');
       if (belowDrop) return focusNode(belowDrop);
+      var sourceButton = wideSourceChip();
+      if (sourceButton && sourceButton.length) {
+        try { sourceButton.trigger('hover:enter'); } catch (e) {}
+      }
       var episode = wideResumeCard();
       if (episode) return focusNode(episode);
       return true;
