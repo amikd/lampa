@@ -3826,6 +3826,7 @@
     }
 
     ui.list.empty().append(note);
+    try { if (typeof wideNoteFit === 'function') wideNoteFit(); } catch (e) {}
     refreshCollection();
 
     var first = actions.find('.selector').first();
@@ -5542,7 +5543,9 @@
     var same = previous.attr('data-nova-menu') === ui_open;
     var shift = same ? (parseFloat(previous.children('.nova-wide__pane').attr('data-nova-y')) || 0) : 0;
     var manual = same && previous.attr('data-nova-manual') === '1';
-    var noteState = !!(ui.list && ui.list.find('.nova-note').length);
+    var noteNode = ui.list && ui.list.find('.nova-note').first();
+    var noteState = !!(noteNode && noteNode.length);
+    if (noteNode && noteNode.length) noteNode.css('display', wideSwapOn() ? 'none' : '');
     if (ui.root) ui.root.toggleClass('nova-wide--note-source', noteState && wideSwapOn());
     var panel = ui.rows.children('.nova-wide__panel').first();
     if (!panel.length) return;
