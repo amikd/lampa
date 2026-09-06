@@ -5777,7 +5777,7 @@
     var out = [];
     if (!inSkin()) return out;
     ui.list.find('.nova-card.selector').each(function () { if (shown(this)) out.push(this); });
-    if (!out.length) out = wideNoteNodes();
+    if (!out.length && !nav) out = wideNoteNodes();
     return out;
   }
 
@@ -5972,8 +5972,11 @@
     if (target && target.card && target.card.length && shown(target.card)) return target.card;
     var first = ui.list.find('.nova-card.selector').first();
     if (first.length) return first;
-    var seat = wideNoteNodes();
-    return seat.length ? $(seat[0]) : null;
+    if (nav) {
+      var seat = wideNoteNodes();
+      return seat.length ? $(seat[0]) : null;
+    }
+    return null;
   }
 
   function wideDown() {
