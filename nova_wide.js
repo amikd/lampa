@@ -5189,12 +5189,8 @@
 
     var ranked = wideRowsTall(rows);
 
-    ranked.forEach(function (entry) {
-      if (entry.lines > WIDE_MAX_LINES) wideSqueeze(entry.row);
-    });
-
     for (var i = 0; i < ranked.length && widePanelTall(panel, hero); i++) {
-      if (ranked[i].lines > WIDE_MAX_LINES) wideSqueeze(ranked[i].row);
+      if (ranked[i].lines >= WIDE_MAX_LINES) wideSqueeze(ranked[i].row);
     }
 
     if (last) wideRowFollow(last);
@@ -5798,6 +5794,7 @@
     if (!wideOn() || !ui.list) return;
     if (wideRow() && !nav && list.length > 0) ui.list.addClass('nova__list--row');
     else ui.list.removeClass('nova__list--row');
+    if (ui.list.hasClass('nova__list--row')) wideDragBind(ui.list, 'x');
     ui.list.attr('data-nova-x', 0);
     try { ui.list[0].style['-webkit-transform'] = ''; ui.list[0].style.transform = ''; } catch (e) {}
   }
