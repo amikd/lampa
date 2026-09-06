@@ -5342,8 +5342,9 @@
     var saved = [];
     try {
       var poster = ui.hero_box[0].getBoundingClientRect();
+      var edge = poster.bottom;
       var top = panel[0].getBoundingClientRect().top;
-      hero = top < poster.bottom ? poster.bottom - top : poster.height;
+      hero = top < edge ? edge - top : poster.height;
       if (!hero) return;
       rows.each(function () {
         var row = $(this);
