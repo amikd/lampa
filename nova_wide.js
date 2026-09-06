@@ -5525,19 +5525,13 @@
     var panel = ui.rows.children('.nova-wide__panel').first();
     if (!panel.length) return;
 
-    var reserve = 0;
-    if (wideSwapOn()) {
-      reserve = parseFloat(panel.attr('data-nova-reserve')) || panel[0].getBoundingClientRect().height || 0;
-      if (reserve > 0) panel.attr('data-nova-reserve', Math.ceil(reserve));
-      wideStash(panel);
-    } else {
+    if (!wideSwapOn()) {
       wideUnstash(panel);
       panel.removeAttr('data-nova-reserve').css('min-height', '');
       ui.rows.removeAttr('data-nova-source-height').css({ height: '', minHeight: '' });
     }
 
     panel.toggleClass('nova-wide__panel--swap', wideSwapOn());
-    if (wideSwapOn() && reserve > 0) panel.css('min-height', Math.ceil(reserve) + 'px');
 
     if (wideSwapOn()) panel.addClass('nova-wide__panel--overlay');
     else panel.removeClass('nova-wide__panel--overlay');
