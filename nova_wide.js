@@ -5324,7 +5324,7 @@
     wide_refit_bound = true;
     var orientationRefit = function () {
       try {
-        if (ui.rows) ui.rows.css('min-height', '');
+        if (ui.rows && !ui.rows.attr('data-nova-source-height')) ui.rows.css('min-height', '');
         if (ui.rows && ui.rows[0]) ui.rows[0].getBoundingClientRect();
       } catch (e) {}
       wideRefitRun();
@@ -5486,6 +5486,17 @@
   function wideDrop() {
     if (!ui.rows) return;
     var previous = ui.rows.find('.nova-drop').first();
+    var wasSource = previous.attr('data-nova-menu') === 'source';
+    var openingSource = wideSwapOn() && !wasSource;
+    if (openingSource) {
+      try {
+        var rowsHeight = ui.rows[0].getBoundingClientRect().height || 0;
+        if (rowsHeight > 0) {
+          ui.rows.attr('data-nova-source-height', Math.ceil(rowsHeight));
+          ui.rows.css('min-height', Math.ceil(rowsHeight) + 'px');
+        }
+      } catch (e) {}
+    }
     var same = previous.attr('data-nova-menu') === ui_open;
     var shift = same ? (parseFloat(previous.children('.nova-wide__pane').attr('data-nova-y')) || 0) : 0;
     var manual = same && previous.attr('data-nova-manual') === '1';
@@ -5505,6 +5516,7 @@
     } else {
       wideUnstash(panel);
       panel.removeAttr('data-nova-reserve').css('min-height', '');
+      ui.rows.removeAttr('data-nova-source-height').css('min-height', '');
     }
 
     panel.toggleClass('nova-wide__panel--swap', wideSwapOn());
