@@ -5298,13 +5298,7 @@
   function wideRefitRun() {
     try {
       wideFit();
-      var strip = ui.list && ui.list.length ? ui.list.parent() : $();
-      var wanted = strip.length ? parseFloat(strip.attr('data-nova-source-top')) : NaN;
-      if (ui_open === 'source' && strip.length && isFinite(wanted)) {
-        var now = strip[0].getBoundingClientRect().top;
-        var delta = Math.round(wanted - now);
-        strip.css('transform', delta ? 'translate3d(0,' + delta + 'px,0)' : '');
-      }
+
     } catch (e) {}
   }
 
@@ -5333,7 +5327,7 @@
     wide_refit_bound = true;
     var orientationRefit = function () {
       try {
-        if (ui.rows && !ui.rows.attr('data-nova-source-height')) ui.rows.css('min-height', '');
+        if (ui.rows && !ui.rows.attr('data-nova-source-height')) ui.rows.css({ height: '', minHeight: '' });
         if (ui.rows && ui.rows[0]) ui.rows[0].getBoundingClientRect();
       } catch (e) {}
       wideRefitRun();
@@ -5498,16 +5492,12 @@
     var wasSource = previous.attr('data-nova-menu') === 'source';
     var openingSource = wideSwapOn() && !wasSource;
     var strip = ui.list && ui.list.length ? ui.list.parent() : $();
-    var stripTop = null;
-    if (openingSource && strip.length) {
-      try { stripTop = strip[0].getBoundingClientRect().top; } catch (e) {}
-    }
     if (openingSource) {
       try {
         var rowsHeight = ui.rows[0].getBoundingClientRect().height || 0;
         if (rowsHeight > 0) {
           ui.rows.attr('data-nova-source-height', Math.ceil(rowsHeight));
-          ui.rows.css('min-height', Math.ceil(rowsHeight) + 'px');
+          ui.rows.css({ height: Math.ceil(rowsHeight) + 'px', minHeight: Math.ceil(rowsHeight) + 'px' });
         }
       } catch (e) {}
     }
@@ -5530,8 +5520,7 @@
     } else {
       wideUnstash(panel);
       panel.removeAttr('data-nova-reserve').css('min-height', '');
-      ui.rows.removeAttr('data-nova-source-height').css('min-height', '');
-      if (strip.length) strip.removeAttr('data-nova-source-top').css('transform', '');
+      ui.rows.removeAttr('data-nova-source-height').css({ height: '', minHeight: '' });
     }
 
     panel.toggleClass('nova-wide__panel--swap', wideSwapOn());
@@ -5551,14 +5540,7 @@
     if (manual) drop.attr('data-nova-manual', '1');
     widePaneShift(wideDropPane(drop), shift);
     wideDropFit(drop);
-    if (openingSource && strip.length && stripTop !== null) {
-      try {
-        var nowTop = strip[0].getBoundingClientRect().top;
-        var delta = Math.round(stripTop - nowTop);
-        strip.attr('data-nova-source-top', stripTop);
-        strip.css('transform', delta ? 'translate3d(0,' + delta + 'px,0)' : '');
-      } catch (e) {}
-    }
+
   }
 
   function wideRows() {
