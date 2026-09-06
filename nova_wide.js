@@ -5296,7 +5296,16 @@
   var wide_refit_bound = false;
 
   function wideRefitRun() {
-    try { wideFit(); } catch (e) {}
+    try {
+      wideFit();
+      var strip = ui.list && ui.list.length ? ui.list.parent() : $();
+      var wanted = strip.length ? parseFloat(strip.attr('data-nova-source-top')) : NaN;
+      if (ui_open === 'source' && strip.length && isFinite(wanted)) {
+        var now = strip[0].getBoundingClientRect().top;
+        var delta = Math.round(wanted - now);
+        strip.css('transform', delta ? 'translate3d(0,' + delta + 'px,0)' : '');
+      }
+    } catch (e) {}
   }
 
   function wideRefitWatch() {
@@ -5488,6 +5497,11 @@
     var previous = ui.rows.find('.nova-drop').first();
     var wasSource = previous.attr('data-nova-menu') === 'source';
     var openingSource = wideSwapOn() && !wasSource;
+    var strip = ui.list && ui.list.length ? ui.list.parent() : $();
+    var stripTop = null;
+    if (openingSource && strip.length) {
+      try { stripTop = strip[0].getBoundingClientRect().top; } catch (e) {}
+    }
     if (openingSource) {
       try {
         var rowsHeight = ui.rows[0].getBoundingClientRect().height || 0;
@@ -5517,6 +5531,7 @@
       wideUnstash(panel);
       panel.removeAttr('data-nova-reserve').css('min-height', '');
       ui.rows.removeAttr('data-nova-source-height').css('min-height', '');
+      if (strip.length) strip.removeAttr('data-nova-source-top').css('transform', '');
     }
 
     panel.toggleClass('nova-wide__panel--swap', wideSwapOn());
@@ -5536,6 +5551,14 @@
     if (manual) drop.attr('data-nova-manual', '1');
     widePaneShift(wideDropPane(drop), shift);
     wideDropFit(drop);
+    if (openingSource && strip.length && stripTop !== null) {
+      try {
+        var nowTop = strip[0].getBoundingClientRect().top;
+        var delta = Math.round(stripTop - nowTop);
+        strip.attr('data-nova-source-top', stripTop);
+        strip.css('transform', delta ? 'translate3d(0,' + delta + 'px,0)' : '');
+      } catch (e) {}
+    }
   }
 
   function wideRows() {
