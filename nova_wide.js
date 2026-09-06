@@ -5527,13 +5527,14 @@
     var same = previous.attr('data-nova-menu') === ui_open;
     var shift = same ? (parseFloat(previous.children('.nova-wide__pane').attr('data-nova-y')) || 0) : 0;
     var manual = same && previous.attr('data-nova-manual') === '1';
+    var panel = ui.rows.children('.nova-wide__panel').first();
+    if (!panel.length) return;
     ui.rows.find('.nova-drop').remove();
     if (ui_open === 'source') sourceRow();
     else if (ui_open === 'jump') jumpRow();
     else if (extra_menu && ui_open === extra_menu.key) extraRow();
-
-    var panel = ui.rows.children('.nova-wide__panel').first();
-    if (!panel.length) return;
+    var createdDrop = ui.rows.children('.nova-drop').last();
+    if (createdDrop.length) createdDrop.appendTo(panel);
 
     if (!wideSwapOn()) {
       wideUnstash(panel);
@@ -5552,10 +5553,9 @@
       else panel.append(bar);
     }
 
-    var drop = ui.rows.children('.nova-drop');
+    var drop = panel.children('.nova-drop').first();
     if (!drop.length) return;
     if (widePosBottom() && bar.length && !wideSwapOn()) drop.insertBefore(bar);
-    else drop.appendTo(panel);
     drop.attr('data-nova-menu', ui_open);
     if (manual) drop.attr('data-nova-manual', '1');
     widePaneShift(wideDropPane(drop), shift);
@@ -5940,6 +5940,8 @@
     if (drop && last && drop.find(last).length) {
       var belowDrop = wideStep(wideDropNodes(), 'down');
       if (belowDrop) return focusNode(belowDrop);
+      var episode = wideResumeCard();
+      if (episode) return focusNode(episode);
       return true;
     }
 
