@@ -3383,7 +3383,7 @@
       else {
         var fallback = resumeTarget();
         if (fallback === true) return true;
-        wanted = fallback || ui.list.find('.nova-card.selector').first();
+        wanted = fallback || ui.list.find('.nova-card.selector,.nova-note .nova-btn.selector').first();
       }
     }
     if (!wanted || !wanted.length) return false;
@@ -5300,13 +5300,21 @@
     if (!ui.root || !ui.root.hasClass('nova-wide') || !ui.list || !ui.hero_box) return;
     var note = ui.list.find('.nova-note').first();
     if (!note.length) return;
+    if (ui_open === 'source' || !shown(note[0])) return;
     try {
+      var have = parseFloat(note.attr('data-nova-note-lift')) || 0;
       var hero = ui.hero_box[0].getBoundingClientRect();
       var box = note[0].getBoundingClientRect();
+      if (!hero.height || !box.height) return;
       var gap = 12;
-      var lift = hero.bottom + gap - box.top;
-      if (lift > 0) note.css('margin-top', Math.ceil(lift) + 'px');
-      else note.css('margin-top', '');
+      var want = Math.ceil(hero.bottom + gap - box.top) + have;
+      if (want < 0) want = 0;
+      if (Math.abs(want - have) < 3) return;
+      if (want > 0) {
+        note.attr('data-nova-note-lift', want).css('margin-top', want + 'px');
+      } else {
+        note.removeAttr('data-nova-note-lift').css('margin-top', '');
+      }
     } catch (e) {}
   }
 
@@ -5315,11 +5323,12 @@
       if (ui_open !== 'source') wideFit();
       else if (ui.list && ui.list.length) {
         var strip = ui.list.parent();
-        var wanted = parseFloat(strip.attr('data-nova-source-top'));
-        if (isFinite(wanted)) {
-          var nowTop = strip[0].getBoundingClientRect().top;
-          var delta = Math.round(wanted - nowTop);
-          strip.css({ position: 'relative', top: delta ? delta + 'px' : '' });
+        var keep = parseFloat(strip.attr('data-nova-source-shift'));
+        if (isFinite(keep)) {
+          var have = parseFloat(strip[0].style.top) || 0;
+          if (Math.round(have) !== Math.round(keep)) {
+            strip.css({ position: 'relative', top: keep ? keep + 'px' : '' });
+          }
         }
       }
       wideNoteFit();
@@ -5559,7 +5568,8 @@
     if (!wideSwapOn()) {
       wideUnstash(panel);
       panel.removeAttr('data-nova-reserve').css('min-height', '');
-      if (strip.length) strip.css({ position: '', top: '' }).removeAttr('data-nova-source-top');
+      if (strip.length) strip.css({ position: '', top: '' })
+        .removeAttr('data-nova-source-top').removeAttr('data-nova-source-shift');
     }
 
     var noteState = !!(ui.list && ui.list.find('.nova-note').length);
@@ -5590,7 +5600,8 @@
       try {
         var nowTop = strip[0].getBoundingClientRect().top;
         var delta = Math.round(stripTop - nowTop);
-        strip.attr('data-nova-source-top', stripTop).css({ position: 'relative', top: delta ? delta + 'px' : '' });
+        strip.attr('data-nova-source-top', stripTop).attr('data-nova-source-shift', delta)
+          .css({ position: 'relative', top: delta ? delta + 'px' : '' });
       } catch (e) {}
     }
 
@@ -5755,10 +5766,18 @@
     return out;
   }
 
+  function wideNoteNodes() {
+    var out = [];
+    if (!inSkin() || !ui.list) return out;
+    ui.list.find('.nova-note .nova-btn.selector').each(function () { if (shown(this)) out.push(this); });
+    return out;
+  }
+
   function wideListNodes() {
     var out = [];
     if (!inSkin()) return out;
     ui.list.find('.nova-card.selector').each(function () { if (shown(this)) out.push(this); });
+    if (!out.length) out = wideNoteNodes();
     return out;
   }
 
@@ -5816,7 +5835,7 @@
   function wideRowSide(dir) {
     if (!last) return null;
 
-    var row = $(last).closest('.nova-wide__row,.nova-wide__bar,.nova-drop');
+    var row = $(last).closest('.nova-wide__row,.nova-wide__bar,.nova-drop,.nova-note__actions');
     if (!row.length) return null;
 
     var nodes = [];
@@ -5952,7 +5971,9 @@
     var target = pickResume(items);
     if (target && target.card && target.card.length && shown(target.card)) return target.card;
     var first = ui.list.find('.nova-card.selector').first();
-    return first.length ? first : null;
+    if (first.length) return first;
+    var seat = wideNoteNodes();
+    return seat.length ? $(seat[0]) : null;
   }
 
   function wideDown() {
@@ -5981,6 +6002,11 @@
     if (rowsFocused()) {
       var below = wideStep(wideItems(), 'down');
       if (below) return focusNode(below);
+      var seats = wideNoteNodes();
+      if (seats.length) {
+        lockRelease();
+        return focusNode(wideStep(seats, 'down') || seats[0]);
+      }
       var target = wideResumeCard();
       if (!target) return false;
       lockRelease();
@@ -6077,6 +6103,13 @@
     }
 
     if (listFocused()) {
+      var seats = wideNoteNodes();
+      if (seats.length && seats.indexOf(last) !== -1) {
+        var step = wideRowSide(dir);
+        if (step) return focusNode(step);
+        if (dir === 'left') return wideToHeroNear(last) || true;
+        return true;
+      }
       try { if (window.Navigator && window.Navigator.canmove(dir)) return false; } catch (e) {}
       return true;
     }
