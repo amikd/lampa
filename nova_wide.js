@@ -6131,6 +6131,7 @@
         return true;
       }
       try { if (window.Navigator && window.Navigator.canmove(dir)) return false; } catch (e) {}
+      if (dir === 'left') return wideToMenu();
       return true;
     }
 
