@@ -4502,7 +4502,7 @@
   var WIDE_ORDER_KEY = 'nova_wide_order';
   var WIDE_META_KEY = 'nova_wide_meta';
   var WIDE_POS_KEY = 'nova_wide_source_pos';
-  var WIDE_MAX_LINES = 2;
+  var WIDE_MAX_LINES = 99;
   var wide_was = 0;
   var wide_hold_timer = null;
 
@@ -5257,7 +5257,7 @@
     try { top = row[0].getBoundingClientRect().top; } catch (e) { return 1; }
     var fit = Math.floor(((edge - top) - mark.high) / mark.step) + 1;
     if (fit < 1) fit = 1;
-    var cut = mark.lines - 1;
+    var cut = mark.lines;
     if (cut < 1) cut = 1;
     return fit < cut ? fit : cut;
   }
@@ -5357,21 +5357,22 @@
 
     var ranked = wideRowsTall(rows);
     ranked.forEach(function (entry) {
-      if (entry.lines > WIDE_MAX_LINES) wideBand(entry.row, WIDE_MAX_LINES);
+      var count = wideRoomLines(entry.row, edge);
+      if (count > 1) wideBand(entry.row, count);
+      else wideSqueeze(entry.row);
     });
-    for (var i = 0; i < ranked.length && widePanelTall(panel, hero); i++) {
-      if (ranked[i].lines > 1) wideSqueeze(ranked[i].row);
+
+    while (widePanelTall(panel, hero)) {
+      var candidate = null;
+      ranked.forEach(function (entry) {
+        if (!entry.row.hasClass('nova-wide__row--pair')) return;
+        var current = Math.max(1, Math.round((parseFloat(entry.row.css('height')) || 0) /
+          Math.max(1, (wideMetric(entry.row) || {}).high || 1)));
+        if (!candidate || current > candidate.current) candidate = { entry: entry, current: current };
+      });
+      if (!candidate || candidate.current <= 1) break;
+      wideBand(candidate.entry.row, candidate.current - 1);
     }
-    ranked.sort(function (a, b) {
-      return (b.row.parent().attr('data-nova-group') === 'voice' ? 1 : 0) -
-        (a.row.parent().attr('data-nova-group') === 'voice' ? 1 : 0);
-    });
-    ranked.forEach(function (entry) {
-      if (entry.lines < 2 || !entry.row.hasClass('nova-wide__row--scroll') ||
-          entry.row.hasClass('nova-wide__row--pair')) return;
-      wideBand(entry.row, WIDE_MAX_LINES);
-      if (widePanelTall(panel, hero)) wideSqueeze(entry.row);
-    });
 
     saved.forEach(function (entry) {
       var shift = entry.row.hasClass('nova-wide__row--scroll') ? wideDragClamp(entry.row, 'x', entry.shift) : 0;
@@ -5728,14 +5729,29 @@
 
     var nodes = [];
     row.find('.selector').each(function () { if (shown(this)) nodes.push(this); });
+    var from = last.getBoundingClientRect();
+    if (!from.width && !from.height) return null;
 
-    var at = nodes.indexOf(last);
-    if (at === -1) return null;
-
-    var next = dir === 'left' ? at - 1 : at + 1;
-    if (next < 0 || next >= nodes.length) return null;
-    if (dir === 'left' && wideLineHead(last, nodes[next])) return null;
-    return nodes[next];
+    var midY = from.top + from.height / 2;
+    var midX = from.left + from.width / 2;
+    var tolY = Math.max(6, from.height * 0.58);
+    var best = null;
+    var gap = Infinity;
+    nodes.forEach(function (node) {
+      if (node === last) return;
+      var box = node.getBoundingClientRect();
+      if (!box.width && !box.height) return;
+      var y = box.top + box.height / 2;
+      var x = box.left + box.width / 2;
+      if (Math.abs(y - midY) > tolY) return;
+      var distance = dir === 'right' ? x - midX : midX - x;
+      if (distance < -tolY) return;
+      if (distance < gap) {
+        best = node;
+        gap = distance;
+      }
+    });
+    return best;
   }
 
   function wideOpenRow() {
@@ -5901,6 +5917,8 @@
     if (rowsFocused()) {
       var next = wideRowSide(dir);
       if (next) return focusNode(next);
+      var ownRow = $(last).closest('.nova-wide__row');
+      if (ownRow.length && ownRow.closest('[data-nova-group="season"],[data-nova-group="voice"]').length) return true;
       if (dir === 'left') return wideToHeroNear(last) || true;
       return true;
     }
