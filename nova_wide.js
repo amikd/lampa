@@ -5298,7 +5298,15 @@
   function wideRefitRun() {
     try {
       wideFit();
-
+      if (ui_open === 'source' && ui.list && ui.list.length) {
+        var strip = ui.list.parent();
+        var wanted = parseFloat(strip.attr('data-nova-source-top'));
+        if (isFinite(wanted)) {
+          var now = strip[0].getBoundingClientRect().top;
+          var delta = Math.round(wanted - now);
+          strip.css({ position: 'relative', top: delta ? delta + 'px' : '' });
+        }
+      }
     } catch (e) {}
   }
 
@@ -5505,6 +5513,10 @@
     var wasSource = previous.attr('data-nova-menu') === 'source';
     var openingSource = wideSwapOn() && !wasSource;
     var strip = ui.list && ui.list.length ? ui.list.parent() : $();
+    var stripTop = null;
+    if (openingSource && strip.length) {
+      try { stripTop = strip[0].getBoundingClientRect().top; } catch (e) {}
+    }
     if (openingSource) {
       try {
         var rowsHeight = ui.rows[0].getBoundingClientRect().height || 0;
@@ -5529,6 +5541,7 @@
       wideUnstash(panel);
       panel.removeAttr('data-nova-reserve').css('min-height', '');
       ui.rows.removeAttr('data-nova-source-height').css({ height: '', minHeight: '' });
+      if (strip.length) strip.css({ position: '', top: '' });
     }
 
     panel.toggleClass('nova-wide__panel--swap', wideSwapOn());
@@ -5554,6 +5567,14 @@
       drop.css({ position: 'absolute', top: Math.ceil(barHeight) + 'px', left: 0, right: 0 });
     } else drop.css({ position: '', top: '', left: '', right: '' });
     wideDropFit(drop);
+    if (openingSource && strip.length && stripTop !== null) {
+      try {
+        var afterTop = strip[0].getBoundingClientRect().top;
+        var delta = Math.round(stripTop - afterTop);
+        strip.css({ position: 'relative', top: delta ? delta + 'px' : '' });
+        strip.attr('data-nova-source-top', stripTop);
+      } catch (e) {}
+    }
 
   }
 
