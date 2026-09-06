@@ -5834,6 +5834,20 @@
     return row.length ? row : null;
   }
 
+  function wideDropNodes() {
+    var row = wideOpenRow();
+    if (!row) return [];
+    var out = [];
+    row.find('.selector').each(function () { if (shown(this)) out.push(this); });
+    return out;
+  }
+
+  function wideDropSide(dir) {
+    var row = wideOpenRow();
+    if (!row || !last || !row.find(last).length) return null;
+    return wideRowSide(dir);
+  }
+
   function wideEntry() {
     var row = wideOpenRow();
     if (!row) return null;
@@ -5926,6 +5940,13 @@
   function wideDown() {
     if (!inSkin()) return false;
 
+    var drop = wideOpenRow();
+    if (drop && last && drop.find(last).length) {
+      var belowDrop = wideStep(wideDropNodes(), 'down');
+      if (belowDrop) return focusNode(belowDrop);
+      return true;
+    }
+
     if (heroFocused()) {
       var resume = wideResumeCard();
       if (!resume) return false;
@@ -5953,6 +5974,15 @@
 
   function wideUp() {
     if (!inSkin()) return false;
+
+    var drop = wideOpenRow();
+    if (drop && last && drop.find(last).length) {
+      var aboveDrop = wideStep(wideDropNodes(), 'up');
+      if (aboveDrop) return focusNode(aboveDrop);
+      var source = wideSourceChip();
+      if (source && source.length && shown(source[0])) return focusNode(source[0]);
+      return true;
+    }
 
     if (listFocused()) {
       var card = wideStep(wideListNodes(), 'up');
@@ -5986,6 +6016,17 @@
       }
       if (at > 0) return focusNode(buttons[at - 1]);
       return wideToMenu();
+    }
+
+    var drop = wideOpenRow();
+    if (drop && last && drop.find(last).length) {
+      var dropNext = wideDropSide(dir);
+      if (dropNext) return focusNode(dropNext);
+      if (dir === 'left') {
+        var sourceChip = wideSourceChip();
+        if (sourceChip && sourceChip.length && shown(sourceChip[0])) return focusNode(sourceChip[0]);
+      }
+      return true;
     }
 
     if (rowsFocused()) {
