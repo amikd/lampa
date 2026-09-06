@@ -641,10 +641,11 @@
     node = scrollAim(node);
     if ((gentle || gentleNow()) && scrollSeen(node)) return;
     if ((gentle || gentleNow()) && handNow() && !pressNow()) return;
+    var tile = gridSeat(node);
     var scroll = activeScroll(node);
     if (scroll) {
       try {
-        scroll.update($(node), true);
+        scroll.update($(node), !tile);
         return;
       } catch (e) {}
     }
@@ -655,7 +656,11 @@
       if (!body.length) return;
       var top = node.getBoundingClientRect().top - box[0].getBoundingClientRect().top;
       var seat = box[0].offsetHeight || 0;
-      var lift = Math.round(Math.max(20, seat / 2 - (node.offsetHeight || 0) / 2));
+      var deep = node.offsetHeight || 0;
+      if (tile && seat && deep && top >= 0 && top + deep <= seat) return;
+      var lift = tile
+        ? (top < 0 ? 20 : Math.max(20, seat - deep - 20))
+        : Math.round(Math.max(20, seat / 2 - deep / 2));
       var style = body[0].style['-webkit-transform'] || body[0].style.transform || '';
       if (style.indexOf('translate') !== -1) {
         var pair = style.match(/-?[\d.]+px,\s*(-?[\d.]+)px/);
@@ -1088,8 +1093,20 @@
     lock_timer = null;
   }
 
+  function gridSeat(node) {
+    try {
+      var card = $(node).closest('.nova-card');
+      if (!card.length) return false;
+      var list = card.parent();
+      return list.hasClass('nova__list--grid') && !list.hasClass('nova__list--row');
+    } catch (e) {
+      return false;
+    }
+  }
+
   function chipSeat(node) {
     try {
+      if (gridSeat(node)) return true;
       return $(node).closest('.nova-toolbar,.nova-drop').length > 0;
     } catch (e) {
       return false;
