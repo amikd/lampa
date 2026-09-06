@@ -5208,7 +5208,7 @@
       if (!now || now >= keep - 1) return;
       box.css('min-height', Math.round(keep) + 'px');
       clearTimeout(wide_hold_timer);
-      wide_hold_timer = setTimeout(function () { try { box.css('min-height', ''); } catch (e) {} }, 1500);
+      wide_hold_timer = null;
     } catch (e) {}
   }
 
