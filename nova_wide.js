@@ -5295,6 +5295,20 @@
   var wide_refit_timers = [];
   var wide_refit_bound = false;
 
+  function wideNoteFit() {
+    if (!ui.list || !ui.hero_box) return;
+    var note = ui.list.find('.nova-note').first();
+    if (!note.length) return;
+    try {
+      var hero = ui.hero_box[0].getBoundingClientRect();
+      var box = note[0].getBoundingClientRect();
+      var gap = 12;
+      var lift = hero.bottom + gap - box.top;
+      if (lift > 0) note.css('margin-top', Math.ceil(lift) + 'px');
+      else note.css('margin-top', '');
+    } catch (e) {}
+  }
+
   function wideRefitRun() {
     try {
       if (ui_open !== 'source') wideFit();
@@ -5307,6 +5321,7 @@
           strip.css({ position: 'relative', top: delta ? delta + 'px' : '' });
         }
       }
+      wideNoteFit();
     } catch (e) {}
   }
 
