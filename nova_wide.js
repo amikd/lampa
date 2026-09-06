@@ -5211,7 +5211,7 @@
     try { return (panel[0].getBoundingClientRect().height || 0) > hero + 1; } catch (e) { return false; }
   }
 
-  function widePitch(row) {
+  function wideMetric(row) {
     var tops = [];
     var high = 0;
     try {
@@ -5222,24 +5222,45 @@
         var key = Math.round(box.top / 4) * 4;
         if (tops.indexOf(key) === -1) tops.push(key);
       });
-    } catch (e) { return 0; }
-    if (!high) return 0;
+    } catch (e) { return null; }
+    if (!high) return null;
     tops.sort(function (a, b) { return a - b; });
     var step = tops.length > 1 ? (tops[1] - tops[0]) : 0;
     if (step < high) step = Math.round(high * 1.14);
-    return step + high;
+    return { step: step, high: high, lines: tops.length };
   }
 
-  function widePair(row) {
-    var room = widePitch(row);
-    if (!room) {
+  function widePitch(row) {
+    var mark = wideMetric(row);
+    return mark ? mark.step + mark.high : 0;
+  }
+
+  function wideRoomLines(row, edge) {
+    var mark = wideMetric(row);
+    if (!mark || !mark.step) return 1;
+    var top = 0;
+    try { top = row[0].getBoundingClientRect().top; } catch (e) { return 1; }
+    var fit = Math.floor(((edge - top) - mark.high) / mark.step) + 1;
+    if (fit < 1) fit = 1;
+    var cut = mark.lines - 1;
+    if (cut < 1) cut = 1;
+    return fit < cut ? fit : cut;
+  }
+
+  function wideBand(row, count) {
+    var mark = wideMetric(row);
+    if (!mark || count <= 1) {
       wideSqueeze(row);
       return;
     }
     row.addClass('nova-wide__row--scroll nova-wide__row--pair');
     row.parent().addClass('nova-wide__group--scroll');
-    row.css('height', Math.round(room) + 'px');
+    row.css('height', Math.round(mark.step * (count - 1) + mark.high) + 'px');
     wideDragBind(row, 'x');
+  }
+
+  function widePair(row) {
+    wideBand(row, WIDE_MAX_LINES);
   }
 
   function wideSqueeze(row) {
@@ -5267,14 +5288,19 @@
     } catch (e) { return; }
     if (!hero) return;
 
+    var edge = 0;
+    try { edge = ui.hero_box[0].getBoundingClientRect().bottom || 0; } catch (e) { edge = 0; }
+
     var ranked = wideRowsTall(rows);
 
-    for (var i = 0; i < ranked.length && widePanelTall(panel, hero); i++) {
-      if (ranked[i].lines > WIDE_MAX_LINES) widePair(ranked[i].row);
-    }
-
-    for (var j = 0; j < ranked.length && widePanelTall(panel, hero); j++) {
-      if (ranked[j].lines >= WIDE_MAX_LINES) wideSqueeze(ranked[j].row);
+    for (var pass = 0; pass < 3 && widePanelTall(panel, hero); pass++) {
+      var eased = false;
+      for (var i = 0; i < ranked.length && widePanelTall(panel, hero); i++) {
+        if (ranked[i].lines < WIDE_MAX_LINES) continue;
+        wideBand(ranked[i].row, wideRoomLines(ranked[i].row, edge));
+        eased = true;
+      }
+      if (!eased) break;
     }
 
     if (last) wideRowFollow(last);
@@ -5325,8 +5351,8 @@
       if (!hero.height) return;
       var tall = pane[0].getBoundingClientRect().height || 0;
       if (!tall) return;
-      var room = Math.round(hero.bottom - drop[0].getBoundingClientRect().top) - 4;
-      room = Math.max(Math.round(hero.height * 0.25), room);
+      var room = Math.floor(hero.bottom - drop[0].getBoundingClientRect().top) - 12;
+      if (room < Math.round(hero.height * 0.25)) room = Math.round(hero.height * 0.25);
       if (tall <= room + 1) return;
       drop.addClass('nova-wide__drop--scroll').css('max-height', room + 'px');
       wideDragBind(drop, 'y');
