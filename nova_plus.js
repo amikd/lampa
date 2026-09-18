@@ -7246,6 +7246,7 @@
   }
 })();
 
+// --- nova_torrents module ---
 (function () {
   'use strict';
 
@@ -7267,9 +7268,9 @@
       en: 'Torrents page'
     },
     nova_plus_set_tor_descr: {
-      ru: 'Хиро-постер, кнопки под ним, торренты только списком',
-      uk: 'Хіро-постер, кнопки під ним, торенти лише списком',
-      en: 'Hero poster, buttons under it, torrents as a plain list'
+      ru: 'Хиро-постер и горизонтальные фильтры под ним, торренты списком',
+      uk: 'Хіро-постер та горизонтальні фільтри під ним, торенти списком',
+      en: 'Hero poster with horizontal filters below, torrents as a list'
     }
   };
 
@@ -7282,45 +7283,54 @@
     '.explorer.nova-plus-tor .watched-history{display:none!important}',
     '.explorer.nova-plus-tor .explorer-card{padding:0!important}',
     '.explorer.nova-plus-tor .explorer-card__body{padding:0!important}',
-    '.explorer.nova-plus-tor .explorer-card__descr{font-size:1em;line-height:1.45;opacity:.55;overflow:hidden;display:-webkit-box;-webkit-line-clamp:5;-webkit-box-orient:vertical}',
-    '.explorer.nova-plus-tor .nova-tor-hero{position:relative;overflow:hidden;-webkit-border-radius:1.2em;border-radius:1.2em;margin:0 0 1.1em 0;background:rgba(255,255,255,.06);min-height:10.5em}',
-    '.explorer.nova-plus-tor .nova-tor-hero__bg{position:absolute;top:0;left:0;right:0;bottom:0}',
-    '.explorer.nova-plus-tor .nova-tor-hero__bg img{display:block;width:100%;height:100%;-o-object-fit:cover;object-fit:cover;opacity:0;-webkit-transition:opacity .35s;transition:opacity .35s}',
+    '.explorer.nova-plus-tor .explorer-card__descr{font-size:1em;line-height:1.45;opacity:.55;overflow:hidden;display:-webkit-box;-webkit-line-clamp:5;-webkit-box-orient:vertical;margin-top:.6em}',
+    '.explorer.nova-plus-tor .explorer__left{-webkit-flex:0 0 41%!important;-ms-flex:0 0 41%!important;flex:0 0 41%!important;width:41%!important;max-width:41%!important;padding-right:1.6em!important}',
+    '.explorer.nova-plus-tor .explorer__files{-webkit-flex:1 1 0%!important;-ms-flex:1 1 0%!important;flex:1 1 0%!important;width:59%!important;min-width:0!important;padding-top:.05em!important}',
+    '.explorer.nova-plus-tor .nova-tor-hero{position:relative;overflow:hidden;-webkit-border-radius:.95em;border-radius:.95em;margin:0 0 .9em 0;background:rgba(255,255,255,.06);min-height:0}',
+    '.explorer.nova-plus-tor .nova-tor-hero__bg{position:relative;width:100%;padding-top:58.5%;overflow:hidden}',
+    '.explorer.nova-plus-tor .nova-tor-hero__bg img{position:absolute;top:0;left:0;width:100%;height:100%;-o-object-fit:cover;object-fit:cover;opacity:0;-webkit-transition:opacity .35s;transition:opacity .35s}',
     '.explorer.nova-plus-tor .nova-tor-hero--loaded .nova-tor-hero__bg img{opacity:1}',
-    '.explorer.nova-plus-tor .nova-tor-hero__shade{position:absolute;top:0;left:0;right:0;bottom:0;background:-webkit-linear-gradient(bottom,rgba(10,11,17,.96) 0%,rgba(10,11,17,.6) 52%,rgba(10,11,17,.1) 100%);background:linear-gradient(0deg,rgba(10,11,17,.96) 0%,rgba(10,11,17,.6) 52%,rgba(10,11,17,.1) 100%)}',
-    '.explorer.nova-plus-tor .nova-tor-hero__body{position:relative;padding:1.4em}',
-    '.explorer.nova-plus-tor .nova-tor-hero__title{font-size:1.9em;font-weight:600;line-height:1.15;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}',
-    '.explorer.nova-plus-tor .nova-tor-hero__meta{display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-flex-wrap:wrap;-ms-flex-wrap:wrap;flex-wrap:wrap;-webkit-box-align:center;-webkit-align-items:center;-ms-flex-align:center;align-items:center;font-size:.95em;margin:.55em 0 0 0}',
-    '.explorer.nova-plus-tor .nova-tor-hero__meta>div{margin:0 .7em .3em 0;opacity:.75}',
-    '.explorer.nova-plus-tor .nova-tor-hero__meta>div.nova-tor-hero__rate{opacity:1;font-weight:600;padding:.2em .55em;-webkit-border-radius:.35em;border-radius:.35em;background:rgba(255,255,255,.18)}',
-    '.explorer.nova-plus-tor .nova-tor-hero__meta>div.nova-tor-hero__age{opacity:.9;padding:.15em .45em;-webkit-border-radius:.3em;border-radius:.3em;-webkit-box-shadow:inset 0 0 0 .08em rgba(255,255,255,.35);box-shadow:inset 0 0 0 .08em rgba(255,255,255,.35)}',
-    '.explorer.nova-plus-tor .explorer__files-head{position:static!important;display:block!important;width:auto!important;height:auto!important;padding:0!important;margin:0 0 1.15em 0!important;background:none!important;border:0!important}',
-    '.explorer.nova-plus-tor .explorer__files-head>div{display:block!important;margin:0!important;padding:0!important}',
-    '.explorer.nova-plus-tor .explorer__files-head .simple-button{display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-box-align:center;-webkit-align-items:center;-ms-flex-align:center;align-items:center;width:100%;min-width:0;margin:0 0 .6em 0!important;padding:.72em 1.1em!important;-webkit-border-radius:1em;border-radius:1em;background:rgba(255,255,255,.07);font-size:1.05em;line-height:1.3;white-space:nowrap;overflow:hidden;border:0!important}',
-    '.explorer.nova-plus-tor .explorer__files-head .simple-button.focus{background:#fff;color:#000}',
-    '.explorer.nova-plus-tor .explorer__files-head .simple-button>svg{width:1.1em;height:1.1em;-webkit-flex-shrink:0;-ms-flex-negative:0;flex-shrink:0;margin:0 .65em 0 0}',
-    '.explorer.nova-plus-tor .explorer__files-head .simple-button>span{-webkit-box-flex:1;-webkit-flex:1 1 auto;-ms-flex:1 1 auto;flex:1 1 auto;min-width:0;overflow:hidden;-o-text-overflow:ellipsis;text-overflow:ellipsis}',
-    '.explorer.nova-plus-tor .explorer__files-head .simple-button>div{-webkit-flex-shrink:0;-ms-flex-negative:0;flex-shrink:0;max-width:60%;margin:0 0 0 .7em;padding:.16em .6em;-webkit-border-radius:.6em;border-radius:.6em;background:rgba(255,255,255,.14);font-size:.9em;overflow:hidden;-o-text-overflow:ellipsis;text-overflow:ellipsis}',
-    '.explorer.nova-plus-tor .explorer__files-head .simple-button.focus>div{background:rgba(0,0,0,.12)}',
+    '.explorer.nova-plus-tor .nova-tor-hero__shade{position:absolute;top:0;left:0;right:0;bottom:0;background:-webkit-linear-gradient(bottom,rgba(10,11,17,.95) 0%,rgba(10,11,17,.56) 48%,rgba(10,11,17,0) 100%);background:linear-gradient(0deg,rgba(10,11,17,.95) 0%,rgba(10,11,17,.56) 48%,rgba(10,11,17,0) 100%)}',
+    '.explorer.nova-plus-tor .nova-tor-hero__body{position:absolute;left:0;right:0;bottom:0;padding:1.05em 1.15em .9em 1.15em;max-width:100%;display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-flex-direction:column;-ms-flex-direction:column;flex-direction:column}',
+    '.explorer.nova-plus-tor .nova-tor-hero__title{font-size:1.68em;font-weight:700;line-height:1.15;margin-bottom:.42em;overflow:hidden;display:-webkit-box;-webkit-line-clamp:1;max-width:72%}',
+    '.explorer.nova-plus-tor .nova-tor-hero__title--logo{width:100%;max-width:100%;text-align:center}',
+    '.explorer.nova-plus-tor .nova-tor-hero__title--logo>img{display:block;margin-left:auto;margin-right:auto;max-height:2.9em;max-width:86%;width:auto;-webkit-filter:drop-shadow(0 .15em .4em rgba(0,0,0,.5));filter:drop-shadow(0 .15em .4em rgba(0,0,0,.5))}',
+    '.explorer.nova-plus-tor .nova-tor-hero__meta{position:absolute;top:.7em;right:.85em;left:auto;bottom:auto;z-index:3;margin:0;font-size:1em;display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-flex-wrap:nowrap;-ms-flex-wrap:nowrap;flex-wrap:nowrap;-webkit-align-items:center;-ms-flex-align:center;align-items:center;-webkit-justify-content:flex-end;-ms-flex-pack:end;justify-content:flex-end;max-width:62%}',
+    '.explorer.nova-plus-tor .nova-tor-hero__meta>*{margin:0 0 0 .9em;padding:0;opacity:.92;white-space:nowrap;background:none!important;-webkit-box-shadow:none!important;box-shadow:none!important;text-shadow:0 .08em .28em rgba(0,0,0,.9)}',
+    '.explorer.nova-plus-tor .nova-tor-hero__meta>div.nova-tor-hero__rate{opacity:1;font-weight:600}',
+    '.explorer.nova-plus-tor .nova-tor-hero__meta>div.nova-tor-hero__age{opacity:.9;padding:.1em .4em;border-radius:.3em;background:rgba(255,255,255,.15);box-shadow:none!important}',
+    '.explorer.nova-plus-tor .explorer__files-head{position:static!important;display:block!important;width:100%!important;height:auto!important;padding:0!important;margin:0 0 .9em 0!important;background:none!important;border:0!important}',
+    '.explorer.nova-plus-tor .explorer__files-head>div{display:-webkit-flex!important;display:-ms-flexbox!important;display:flex!important;-webkit-flex-direction:row!important;-ms-flex-direction:row!important;flex-direction:row!important;-webkit-flex-wrap:wrap!important;-ms-flex-wrap:wrap!important;flex-wrap:wrap!important;-webkit-align-items:center!important;-ms-flex-align:center!important;align-items:center!important;gap:.45em!important;margin:0!important;padding:0!important}',
+    '.explorer.nova-plus-tor .explorer__files-head .simple-button{display:-webkit-inline-flex!important;display:-ms-inline-flexbox!important;display:inline-flex!important;-webkit-align-items:center!important;-ms-flex-align:center!important;align-items:center!important;width:auto!important;min-width:0!important;margin:0!important;padding:.42em .85em!important;-webkit-border-radius:.6em!important;border-radius:.6em!important;background:rgba(255,255,255,.08)!important;font-size:.95em!important;line-height:1.25!important;white-space:nowrap!important;overflow:hidden!important;border:0!important;-webkit-box-shadow:inset 0 0 0 .08em rgba(255,255,255,.06)!important;box-shadow:inset 0 0 0 .08em rgba(255,255,255,.06)!important}',
+    '.explorer.nova-plus-tor .explorer__files-head .simple-button.focus{background:rgba(255,255,255,.2)!important;color:#fff!important;-webkit-box-shadow:inset 0 0 0 .09em rgba(255,255,255,.45), 0 .2em .7em rgba(0,0,0,.4)!important;box-shadow:inset 0 0 0 .09em rgba(255,255,255,.45), 0 .2em .7em rgba(0,0,0,.4)!important}',
+    '.explorer.nova-plus-tor .explorer__files-head .simple-button>svg{width:1.05em;height:1.05em;-webkit-flex-shrink:0;-ms-flex-negative:0;flex-shrink:0;margin:0 .45em 0 0}',
+    '.explorer.nova-plus-tor .explorer__files-head .simple-button>span{-webkit-box-flex:0;-webkit-flex:0 1 auto;-ms-flex:0 1 auto;flex:0 1 auto;min-width:0;overflow:hidden;-o-text-overflow:ellipsis;text-overflow:ellipsis}',
+    '.explorer.nova-plus-tor .explorer__files-head .simple-button>div{-webkit-flex-shrink:0;-ms-flex-negative:0;flex-shrink:0;margin:0 0 0 .45em;padding:.12em .45em;-webkit-border-radius:.45em;border-radius:.45em;background:rgba(255,255,255,.14);font-size:.85em;overflow:hidden;-o-text-overflow:ellipsis;text-overflow:ellipsis}',
+    '.explorer.nova-plus-tor .explorer__files-head .simple-button.focus>div{background:rgba(255,255,255,.25)}',
     '.explorer.nova-plus-tor .explorer__files-head .simple-button>div.hide{display:none!important}',
-    '.explorer.nova-plus-tor .explorer__files-head .simple-button:last-child{margin-bottom:0!important}',
-    '.explorer.nova-plus-tor .torrent-list{display:block!important}',
-    '.explorer.nova-plus-tor .torrent-item{position:relative;display:block!important;float:none!important;width:auto!important;margin:0 0 .7em 0!important;padding:.85em 1.1em!important;-webkit-border-radius:.9em;border-radius:.9em;background:rgba(255,255,255,.05);border:0!important;-webkit-box-shadow:none;box-shadow:none}',
-    '.explorer.nova-plus-tor .torrent-item.focus{background:#fff!important;color:#000!important}',
-    '.explorer.nova-plus-tor .torrent-item__title{font-size:1.05em;font-weight:600;line-height:1.3;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}',
-    '.explorer.nova-plus-tor .torrent-item__ffprobe{margin:.5em 0 0 0}',
-    '.explorer.nova-plus-tor .torrent-item__details{margin:.45em 0 0 0;font-size:.9em;opacity:.7}',
-    '.explorer.nova-plus-tor .torrent-item.focus .torrent-item__details{opacity:.65}',
-    '@media screen and (max-width:580px){.explorer.nova-plus-tor .nova-tor-hero{min-height:8em}.explorer.nova-plus-tor .nova-tor-hero__title{font-size:1.5em}}'
+    '.explorer.nova-plus-tor .torrent-list{display:block!important;padding:0!important}',
+    '.explorer.nova-plus-tor .torrent-item{position:relative;display:block!important;float:none!important;width:100%!important;margin:0 0 1em 0!important;padding:1em!important;background-color:rgba(0,0,0,0.3)!important;border-radius:0.3em!important;line-height:1.2!important;box-shadow:none!important;color:#fff!important}',
+    '.explorer.nova-plus-tor .torrent-item + .torrent-item{margin-top:1em!important}',
+    '.explorer.nova-plus-tor .torrent-item.focus{background-color:rgba(0,0,0,0.3)!important;color:#fff!important}',
+    '.explorer.nova-plus-tor .torrent-item.focus::after{content:""!important;position:absolute!important;top:-0.5em!important;left:-0.5em!important;right:-0.5em!important;bottom:-0.5em!important;border:0.3em solid #fff!important;border-radius:0.7em!important;z-index:2!important;pointer-events:none!important}',
+    '.explorer.nova-plus-tor .torrent-item__title{font-size:1.3em!important;word-break:break-all!important;line-height:1.2!important;color:#fff!important;opacity:1!important}',
+    '.explorer.nova-plus-tor .torrent-item__details{display:-webkit-flex!important;display:flex!important;color:rgba(255,255,255,0.5)!important;margin-top:0.6em!important;font-weight:600!important;align-items:center!important;white-space:nowrap!important}',
+    '.explorer.nova-plus-tor .torrent-item__date{margin-right:1em!important}',
+    '.explorer.nova-plus-tor .torrent-item__tracker{margin-right:1em!important;overflow:hidden!important;text-overflow:ellipsis!important;flex-grow:1!important}',
+    '.explorer.nova-plus-tor .torrent-item__size{background-color:#fff!important;border-radius:0.3em!important;color:#000!important;padding:0.3em 0.5em!important}',
+    '.explorer.nova-plus-tor .torrent-item.focus .torrent-item__details{color:rgba(255,255,255,0.7)!important}',
+    '@media screen and (max-width:580px){.explorer.nova-plus-tor .explorer__left{width:100%!important;max-width:100%!important;padding-right:0!important}.explorer.nova-plus-tor .explorer__files{width:100%!important;max-width:100%!important}}'
   ].join('');
 
   function torStyle() {
     try {
-      if (document.getElementById(TOR_STYLE)) return;
-      var node = document.createElement('style');
-      node.id = TOR_STYLE;
+      var node = document.getElementById(TOR_STYLE);
+      if (!node) {
+        node = document.createElement('style');
+        node.id = TOR_STYLE;
+        document.head.appendChild(node);
+      }
       node.innerHTML = TOR_CSS;
-      document.head.appendChild(node);
     } catch (e) {}
   }
 
@@ -7348,7 +7358,7 @@
       return proto + path;
     }
     if (!TOR_IMG.test(path)) return '';
-    try { return Lampa.TMDB.image('t/p/' + (size || 'w780') + path); } catch (e) { return ''; }
+    try { return Lampa.TMDB.image('t/p/' + (size || 'w1280') + path); } catch (e) { return ''; }
   }
 
   function torActive() {
@@ -7361,8 +7371,9 @@
   }
 
   function torArt(movie) {
-    return torImage(movie.backdrop_path, 'w780') ||
-      torImage(movie.poster_path, 'w500') ||
+    return torImage(movie.backdrop_path, 'w1280') ||
+      torImage(movie.poster_path, 'w780') ||
+      torImage(movie.img, 'w1280') ||
       (movie.background_image || movie.img || '');
   }
 
@@ -7384,16 +7395,15 @@
     var hero = box.find('.nova-tor-hero').eq(0);
 
     if (!hero.length) {
-      hero = $('<div class="nova-tor-hero"><div class="nova-tor-hero__bg"><img alt=""></div><div class="nova-tor-hero__shade"></div><div class="nova-tor-hero__body"><div class="nova-tor-hero__title"></div><div class="nova-tor-hero__meta"></div></div></div>');
+      hero = $('<div class="nova-tor-hero"><div class="nova-tor-hero__bg"><img alt=""></div><div class="nova-tor-hero__shade"></div><div class="nova-tor-hero__body"><div class="nova-tor-hero__title"></div></div><div class="nova-tor-hero__meta"></div></div>');
       card.before(hero);
     }
 
-    var title = box.find('.explorer-card__title').text() || movie.title || movie.name || '';
-    var create = box.find('.explorer-card__head-create').text();
-    var rate = box.find('.explorer-card__head-rate').hasClass('hide') ? '' : box.find('.explorer-card__head-rate span').text();
+    var title = movie.title || movie.name || box.find('.explorer-card__title').text() || '';
+    var year = ((movie.release_date || movie.first_air_date || '') + '').slice(0, 4) || box.find('.explorer-card__head-create').text();
+    var vote = movie.vote_average ? ('\u2605 ' + parseFloat(movie.vote_average + '').toFixed(1)) : (box.find('.explorer-card__head-rate').hasClass('hide') ? '' : box.find('.explorer-card__head-rate span').text());
     var age = box.find('.explorer-card__head-age').text();
-    var genres = box.find('.explorer-card__genres').text();
-    var sign = [title, create, rate, age, genres].join('|');
+    var sign = [title, year, vote, age].join('|');
 
     if (hero.attr('data-sign') !== sign) {
       hero.attr('data-sign', sign);
@@ -7401,10 +7411,9 @@
 
       var meta = hero.find('.nova-tor-hero__meta').empty();
 
-      if (rate) meta.append($('<div class="nova-tor-hero__rate"></div>').text(rate));
-      if (create) meta.append($('<div></div>').text(create));
+      if (vote) meta.append($('<div class="nova-tor-hero__rate"></div>').text(vote));
+      if (year) meta.append($('<div></div>').text(year));
       if (age) meta.append($('<div class="nova-tor-hero__age"></div>').text(age));
-      if (genres) meta.append($('<div class="nova-tor-hero__genres"></div>').text(genres));
     }
 
     var art = torArt(movie);
@@ -7490,43 +7499,40 @@
     } catch (e) {}
   }
 
-  function torStart() {
-    torSettings();
-
+  function torHook() {
     try {
       Lampa.Listener.follow('activity', function (e) {
         if (!e) return;
-
-        if (e.component !== 'torrents') {
-          if (e.type === 'start') torStop();
-          return;
-        }
-
-        if (e.type === 'start' || e.type === 'archive') {
-          torApply();
-          setTimeout(torApply, 120);
-          setTimeout(torApply, 500);
+        if (e.type === 'start' && e.component === 'torrents') {
+          torSoon(50);
+          torSoon(250);
           torWatch();
+        } else if (e.type === 'destroy' && e.component === 'torrents') {
+          torStop();
         }
-
-        if (e.type === 'destroy') torStop();
-      });
-    } catch (e) {}
-
-    try {
-      Lampa.Listener.follow('torrent', function (e) {
-        if (!e || e.type !== 'render') return;
-        torSoon(60);
       });
     } catch (e) {}
   }
 
-  if (window.appready) torStart();
-  else {
-    try {
-      Lampa.Listener.follow('app', function (e) {
-        if (e.type === 'ready') torStart();
-      });
-    } catch (e) {}
+  function torInit() {
+    torSettings();
+    torHook();
+    if (torActive() && torActive().component === 'torrents') {
+      torSoon(50);
+      torWatch();
+    }
   }
+
+  try {
+    if (window.Lampa && Lampa.Listener) torInit();
+    else {
+      var tor_ready = function () {
+        if (window.Lampa && Lampa.Listener) {
+          document.removeEventListener('lampa', tor_ready);
+          torInit();
+        }
+      };
+      document.addEventListener('lampa', tor_ready);
+    }
+  } catch (e) {}
 })();
