@@ -7268,9 +7268,9 @@
       en: 'Torrents page'
     },
     nova_plus_set_tor_descr: {
-      ru: 'Хиро-постер и вертикальные фильтры под ним, торренты списком',
-      uk: 'Хіро-постер та вертикальні фільтри під ним, торенти списком',
-      en: 'Hero poster with vertical filters below, torrents as a list'
+      ru: 'Хиро-постер и вертикальные кнопки под ним, торренты списком',
+      uk: 'Хіро-постер та вертикальні кнопки під ним, торенти списком',
+      en: 'Hero poster with vertical buttons below, torrents as a list'
     }
   };
 
@@ -7304,8 +7304,11 @@
     '.explorer.nova-plus-tor .nova-tor-hero__meta>div.nova-tor-hero__rate{opacity:1;font-weight:600}',
     '.explorer.nova-plus-tor .nova-tor-hero__meta>div.nova-tor-hero__age{opacity:.9;padding:.1em .4em;border-radius:.3em;background:rgba(255,255,255,.15);box-shadow:none!important}',
     '.explorer.nova-plus-tor .explorer__files-head{position:static!important;display:block!important;width:100%!important;height:auto!important;padding:0!important;margin:0 0 .9em 0!important;background:none!important;border:0!important}',
-    '.explorer.nova-plus-tor .explorer__files-head>div{display:-webkit-flex!important;display:-ms-flexbox!important;display:flex!important;-webkit-flex-direction:column!important;-ms-flex-direction:column!important;flex-direction:column!important;-webkit-align-items:stretch!important;-ms-flex-align:stretch!important;align-items:stretch!important;gap:.45em!important;margin:0!important;padding:0!important}',
-    '.explorer.nova-plus-tor .explorer__files-head .simple-button{display:-webkit-flex!important;display:-ms-flexbox!important;display:flex!important;-webkit-align-items:center!important;-ms-flex-align:center!important;align-items:center!important;width:100%!important;min-width:0!important;margin:0!important;padding:.55em 1em!important;-webkit-border-radius:.65em!important;border-radius:.65em!important;background:rgba(255,255,255,.08)!important;font-size:1em!important;line-height:1.3!important;white-space:nowrap!important;overflow:hidden!important;border:0!important;-webkit-box-shadow:inset 0 0 0 .08em rgba(255,255,255,.06)!important;box-shadow:inset 0 0 0 .08em rgba(255,255,255,.06)!important}',
+    '.explorer.nova-plus-tor .explorer__files-head .scroll{width:100%!important;height:auto!important;overflow:visible!important}',
+    '.explorer.nova-plus-tor .explorer__files-head .scroll__content{width:100%!important;height:auto!important;overflow:visible!important}',
+    '.explorer.nova-plus-tor .explorer__files-head .scroll__body{width:100%!important;height:auto!important;transform:none!important;overflow:visible!important;display:block!important;padding:0!important;margin:0!important}',
+    '.explorer.nova-plus-tor .explorer__files-head .torrent-filter, .explorer.nova-plus-tor .explorer__files-head>div, .explorer.nova-plus-tor .explorer__files-head .scroll__body>div{display:-webkit-flex!important;display:-ms-flexbox!important;display:flex!important;-webkit-flex-direction:column!important;-ms-flex-direction:column!important;flex-direction:column!important;-webkit-align-items:stretch!important;-ms-flex-align:stretch!important;align-items:stretch!important;gap:.45em!important;width:100%!important;margin:0!important;padding:0!important}',
+    '.explorer.nova-plus-tor .explorer__files-head .simple-button{display:-webkit-flex!important;display:-ms-flexbox!important;display:flex!important;-webkit-align-items:center!important;-ms-flex-align:center!important;align-items:center!important;width:100%!important;height:auto!important;min-width:0!important;margin:0 0 .45em 0!important;padding:.55em 1em!important;-webkit-border-radius:.65em!important;border-radius:.65em!important;background:rgba(255,255,255,.08)!important;font-size:1em!important;line-height:1.3!important;white-space:nowrap!important;overflow:hidden!important;border:0!important;-webkit-box-shadow:inset 0 0 0 .08em rgba(255,255,255,.06)!important;box-shadow:inset 0 0 0 .08em rgba(255,255,255,.06)!important}',
     '.explorer.nova-plus-tor .explorer__files-head .simple-button.focus{background:rgba(255,255,255,.2)!important;color:#fff!important;-webkit-box-shadow:inset 0 0 0 .09em rgba(255,255,255,.45), 0 .2em .7em rgba(0,0,0,.4)!important;box-shadow:inset 0 0 0 .09em rgba(255,255,255,.45), 0 .2em .7em rgba(0,0,0,.4)!important}',
     '.explorer.nova-plus-tor .explorer__files-head .simple-button>svg{width:1.15em;height:1.15em;-webkit-flex-shrink:0;-ms-flex-negative:0;flex-shrink:0;margin:0 .6em 0 0}',
     '.explorer.nova-plus-tor .explorer__files-head .simple-button>span{-webkit-box-flex:1;-webkit-flex:1 1 auto;-ms-flex:1 1 auto;flex:1 1 auto;min-width:0;overflow:hidden;-o-text-overflow:ellipsis;text-overflow:ellipsis}',
@@ -7321,7 +7324,7 @@
     '.explorer.nova-plus-tor .torrent-item__details{display:-webkit-flex!important;display:flex!important;color:rgba(255,255,255,0.5)!important;margin-top:0.6em!important;font-weight:600!important;align-items:center!important;white-space:nowrap!important}',
     '.explorer.nova-plus-tor .torrent-item__date{margin-right:1em!important}',
     '.explorer.nova-plus-tor .torrent-item__tracker{margin-right:1em!important;overflow:hidden!important;text-overflow:ellipsis!important;flex-grow:1!important}',
-    '.explorer.nova-plus-tor .torrent-item__size{background-color:#fff!important;border-radius:0.3em!important;color:#000!important;padding:0.3em 0.5em!important}',
+    '.explorer.nova-plus-tor .torrent-item__size{background:transparent!important;border-radius:0.4em!important;color:#fff!important;border:1px solid rgba(255,255,255,0.35)!important;padding:0.25em 0.6em!important;font-weight:600!important}',
     '.explorer.nova-plus-tor .torrent-item.focus .torrent-item__details{color:rgba(255,255,255,0.7)!important}',
     '@media screen and (max-width:580px){.explorer.nova-plus-tor .explorer__left{width:100%!important;max-width:100%!important;padding-right:0!important}.explorer.nova-plus-tor .explorer__files{width:100%!important;max-width:100%!important;padding-right:0!important}}'
   ].join('');
@@ -7541,19 +7544,6 @@
     torFree(box);
   }
 
-  function torAlign(box) {
-    var head = box.find('.explorer__files-head').eq(0);
-    var files = box.find('.explorer__files').eq(0);
-    if (!head.length || !files.length) return;
-    var hero = box.find('.nova-tor-hero').eq(0);
-    if (!hero.length) return;
-
-    var headHeight = head.outerHeight(true) || 0;
-    if (headHeight > 0) {
-      files.css('padding-top', '0px');
-    }
-  }
-
   function torApply() {
     if (!torOn()) return;
 
@@ -7564,7 +7554,6 @@
     box.addClass(TOR_SCOPE);
     torHero(box, torMovie());
     torChips(box);
-    torAlign(box);
   }
 
   function torSoon(wait) {
