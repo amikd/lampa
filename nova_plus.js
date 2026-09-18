@@ -463,7 +463,7 @@
     if (document.getElementById('nova-plus-css')) return;
     var style = document.createElement('style');
     style.id = 'nova-plus-css';
-    style.textContent = SKIN_CSS + EXTRA_CSS + CARD_CSS + FOCUS_CSS + FULL_CSS + FADE_CSS + MARK_CSS + BADGE_CSS + LOGO_CSS + LOGO_HOLD + WIDE_CSS;
+    style.textContent = SKIN_CSS + EXTRA_CSS + CARD_CSS + FOCUS_CSS + FULL_CSS + FADE_CSS + MARK_CSS + BADGE_CSS + LOGO_CSS + LOGO_HOLD + WIDE_CSS + TORRENT_CARD_CSS;
     (document.body || document.head).appendChild(style);
   }
 
@@ -4619,7 +4619,6 @@
   }
 
   function draw() {
-    if (novaTorrentSync()) return;
     if (!enabled() || busy) return;
 
     var found = scope();
@@ -4865,7 +4864,6 @@
   }
 
   function detach() {
-    novaTorrentClean();
     if (observer) observer.disconnect();
     observer = null;
     observed = null;
@@ -5275,7 +5273,188 @@
     } catch (err) {}
   }
 
+
+  var TORRENT_CARD_CSS = [
+    '.nova-torrent-page .explorer{display:-webkit-flex!important;display:-ms-flexbox!important;display:flex!important;-webkit-flex-direction:row!important;-ms-flex-direction:row!important;flex-direction:row!important;width:100%!important}',
+    '.nova-torrent-page .explorer__left{display:block!important;width:28%!important;-webkit-flex:0 0 28%!important;-ms-flex:0 0 28%!important;flex:0 0 28%!important;max-width:28%!important;padding-right:1.5em;box-sizing:border-box}',
+    '.nova-torrent-page .explorer__files{width:72%!important;-webkit-flex:1 1 72%!important;-ms-flex:1 1 72%!important;flex:1 1 72%!important;min-width:0;box-sizing:border-box}',
+    '.nova-torrent-page .explorer-card__head-img{width:100%!important;padding-top:140%!important;position:relative!important;border-radius:.6em;overflow:hidden}',
+    '.nova-torrent-page .explorer-card__head-img img{position:absolute!important;top:0;left:0;width:100%!important;height:100%!important;object-fit:cover}',
+    '.nova-torrent-page .explorer-card__title{font-size:1.6em!important;font-weight:700!important;margin:0.6em 0 0.3em 0!important;line-height:1.2!important;text-transform:uppercase}',
+    '.nova-torrent-page .explorer-card__genres,.nova-torrent-page .explorer-card__descr{opacity:.6;font-size:.95em;line-height:1.4}',
+    '.nova-torrent-page .explorer__files-head{margin-bottom:1em!important}',
+    '.nova-torrent-page .torrent-item{display:block!important;position:relative!important;background:rgba(255,255,255,.05)!important;border:1px solid rgba(255,255,255,.08)!important;border-radius:.65em!important;padding:.85em 1.15em!important;margin-bottom:.75em!important;box-shadow:none!important;cursor:pointer;transition:background .2s,border-color .2s,transform .2s}',
+    '.nova-torrent-page .torrent-item.focus{background:rgba(255,255,255,.14)!important;border-color:rgba(255,255,255,.5)!important;transform:scale(1.012);z-index:2}',
+    '.nova-torrent-page .torrent-item__body-grid{display:-webkit-flex!important;display:-ms-flexbox!important;display:flex!important;-webkit-flex-direction:row!important;-ms-flex-direction:row!important;flex-direction:row!important;-webkit-align-items:center!important;-ms-flex-align:center!important;align-items:center!important;-webkit-justify-content:space-between!important;-ms-flex-pack:space-between!important;justify-content:space-between!important;width:100%!important;min-width:0}',
+    '.nova-torrent-page .torrent-item__main-col{min-width:0;-webkit-flex:1 1 auto;-ms-flex:1 1 auto;flex:1 1 auto;padding-right:1.2em}',
+    '.nova-torrent-page .torrent-item__top-row{display:-webkit-flex!important;display:-ms-flexbox!important;display:flex!important;-webkit-flex-wrap:wrap!important;-ms-flex-wrap:wrap!important;flex-wrap:wrap!important;-webkit-align-items:center!important;-ms-flex-align:center!important;align-items:center!important;gap:.45em;margin-bottom:.35em}',
+    '.nova-torrent-page .torrent-item__badge{display:inline-block;padding:.2em .55em;border-radius:.35em;font-size:.82em;font-weight:700;line-height:1;background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.15);white-space:nowrap;letter-spacing:.02em}',
+    '.nova-torrent-page .torrent-item__badge--res{background:#fff!important;color:#000!important;border:none!important}',
+    '.nova-torrent-page .torrent-item__badge--hdr{background:#ff9800!important;color:#000!important;border:none!important}',
+    '.nova-torrent-page .torrent-item__parsed-title{font-size:1.08em;font-weight:600;color:#fff;line-height:1.25;margin-right:.4em}',
+    '.nova-torrent-page .torrent-item__sub-row{display:-webkit-flex!important;display:-ms-flexbox!important;display:flex!important;-webkit-flex-wrap:wrap!important;-ms-flex-wrap:wrap!important;flex-wrap:wrap!important;-webkit-align-items:center!important;-ms-flex-align:center!important;align-items:center!important;gap:.5em;font-size:.84em;color:rgba(255,255,255,.6);line-height:1.3}',
+    '.nova-torrent-page .torrent-item__raw-name{font-size:.82em;color:rgba(255,255,255,.45);margin-top:.25em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}',
+    '.nova-torrent-page .torrent-item__meta-col{display:-webkit-flex!important;display:-ms-flexbox!important;display:flex!important;-webkit-flex-direction:column!important;-ms-flex-direction:column!important;flex-direction:column!important;-webkit-align-items:flex-end!important;-ms-flex-align:flex-end!important;align-items:flex-end!important;-webkit-flex-shrink:0!important;-ms-flex-negative:0!important;flex-shrink:0!important;font-size:.88em;white-space:nowrap}',
+    '.nova-torrent-page .torrent-item__size-val{font-size:1.15em;font-weight:700;color:#fff;margin-bottom:.25em}',
+    '.nova-torrent-page .torrent-item__seeds-row{display:-webkit-flex!important;display:-ms-flexbox!important;display:flex!important;-webkit-align-items:center!important;-ms-flex-align:center!important;align-items:center!important;gap:.5em;font-size:.82em}',
+    '.nova-torrent-page .torrent-item__s-badge{color:#4caf50;font-weight:600}',
+    '.nova-torrent-page .torrent-item__p-badge{color:#2196f3;font-weight:600}',
+    '.nova-torrent-page .torrent-item.nova-restyled>.torrent-item__title,.nova-torrent-page .torrent-item.nova-restyled>.torrent-item__details{display:none!important}',
+    '@media screen and (max-width:768px){.nova-torrent-page .explorer{flex-direction:column!important}.nova-torrent-page .explorer__left{width:100%!important;max-width:100%!important;margin-bottom:1em;padding-right:0}.nova-torrent-page .explorer__files{width:100%!important}}'
+  ].join('');
+
+  function hookTorrentPage() {
+    function parseInfo(title) {
+      var res = '';
+      if (/2160p|4k|uhd/i.test(title)) res = '4K';
+      else if (/1080p|fhd/i.test(title)) res = '1080p';
+      else if (/720p|hd/i.test(title)) res = '720p';
+      else if (/480p|sd/i.test(title)) res = 'SD';
+
+      var video = '';
+      if (/hevc|h\.?265|x265/i.test(title)) video = 'HEVC';
+      else if (/avc|h\.?264|x264/i.test(title)) video = 'AVC';
+      else if (/av1/i.test(title)) video = 'AV1';
+
+      var audio = [];
+      if (/dts-hd/i.test(title)) audio.push('DTS-HD');
+      else if (/dts/i.test(title)) audio.push('DTS');
+      if (/truehd/i.test(title)) audio.push('TrueHD');
+      if (/atmos/i.test(title)) audio.push('Atmos');
+      if (/e-ac-?3|ddp|dd\+/i.test(title)) audio.push('EAC3');
+      else if (/ac-?3|dd/i.test(title)) audio.push('AC3');
+      if (/aac/i.test(title)) audio.push('AAC');
+      if (/flac/i.test(title)) audio.push('FLAC');
+      if (/5\.1/i.test(title)) audio.push('5.1');
+      if (/7\.1/i.test(title)) audio.push('7.1');
+      if (/2\.0/i.test(title)) audio.push('2.0');
+
+      var hdr = '';
+      if (/dolby[ .]?vision|dovi|dv/i.test(title)) hdr = 'DV';
+      else if (/hdr10\+/i.test(title)) hdr = 'HDR10+';
+      else if (/hdr/i.test(title)) hdr = 'HDR';
+
+      var clean = title.replace(/\[.*?\]|\(.*?\)/g, ' ').replace(/[_.]/g, ' ');
+      var parts = clean.split(/\/|-|\||20\d\d|19\d\d/);
+      var voice = '';
+      for (var i = 0; i < parts.length; i++) {
+        var p = parts[i].trim();
+        if (/дубляж|многоголосый|двухголосый|одноголосый|субтитры|авторский|original|eng|rus/i.test(p)) {
+          voice = p;
+          break;
+        }
+      }
+      return { res: res, video: video, audio: audio.slice(0, 3).join('/'), hdr: hdr, voice: voice };
+    }
+
+    function restyleItems(container) {
+      if (!container) return;
+      var items = container.find('.torrent-item:not(.nova-restyled)');
+      items.each(function () {
+        var it = $(this);
+        it.addClass('nova-restyled');
+
+        var rawTitle = it.find('.torrent-item__title').text().trim();
+        var date = it.find('.torrent-item__date').text().trim();
+        var tracker = it.find('.torrent-item__tracker').text().trim();
+        var size = it.find('.torrent-item__size').text().trim();
+        var seeds = it.find('.torrent-item__seeds span').text().trim() || it.find('.torrent-item__seeds').text().replace(/[^0-9]/g, '');
+        var grabs = it.find('.torrent-item__grabs span').text().trim() || it.find('.torrent-item__grabs').text().replace(/[^0-9]/g, '');
+
+        var ffprobe = it.find('.torrent-item__ffprobe');
+        var res = '';
+        var badges = [];
+        var voiceText = '';
+
+        if (ffprobe.length && ffprobe.children().length) {
+          ffprobe.children().each(function () {
+            var el = $(this);
+            var txt = el.text().trim();
+            if (el.hasClass('m-resolution')) {
+              if (/hdr/i.test(txt)) badges.push('<span class="torrent-item__badge torrent-item__badge--hdr">' + txt + '</span>');
+              else if (!res) res = txt;
+            } else if (el.hasClass('m-channels')) {
+              badges.push('<span class="torrent-item__badge">' + txt + '</span>');
+            } else if (el.hasClass('m-audio')) {
+              if (!voiceText) voiceText = txt;
+              else badges.push('<span class="torrent-item__badge">' + txt + '</span>');
+            } else if (el.hasClass('m-subtitle')) {
+              badges.push('<span class="torrent-item__badge">' + txt + '</span>');
+            } else if (el.hasClass('m-general')) {
+              badges.push('<span class="torrent-item__badge">' + txt + '</span>');
+            } else if (txt) {
+              badges.push('<span class="torrent-item__badge">' + txt + '</span>');
+            }
+          });
+        }
+
+        var parsed = parseInfo(rawTitle);
+        if (!res && parsed.res) res = parsed.res;
+        if (parsed.hdr && badges.join('').indexOf('HDR') === -1 && badges.join('').indexOf('DV') === -1) {
+          badges.unshift('<span class="torrent-item__badge torrent-item__badge--hdr">' + parsed.hdr + '</span>');
+        }
+        if (parsed.video && badges.join('').indexOf(parsed.video) === -1) {
+          badges.push('<span class="torrent-item__badge">' + parsed.video + '</span>');
+        }
+        if (parsed.audio && badges.join('').indexOf(parsed.audio) === -1) {
+          badges.push('<span class="torrent-item__badge">' + parsed.audio + '</span>');
+        }
+        if (!voiceText && parsed.voice) voiceText = parsed.voice;
+        if (!voiceText) voiceText = rawTitle.slice(0, 45);
+
+        var topHtml = '';
+        if (res) topHtml += '<span class="torrent-item__badge torrent-item__badge--res">' + res + '</span>';
+        topHtml += '<span class="torrent-item__parsed-title">' + voiceText + '</span>';
+        topHtml += badges.slice(0, 5).join('');
+
+        var subHtml = '';
+        if (date) subHtml += '<span>' + date + '</span>';
+        if (tracker) subHtml += '<span>• ' + tracker + '</span>';
+
+        var metaHtml = '';
+        if (size) metaHtml += '<span class="torrent-item__size-val">' + size + '</span>';
+        metaHtml += '<div class="torrent-item__seeds-row">';
+        if (seeds) metaHtml += '<span class="torrent-item__s-badge">▲ ' + seeds + '</span>';
+        if (grabs) metaHtml += '<span class="torrent-item__p-badge">▼ ' + grabs + '</span>';
+        metaHtml += '</div>';
+
+        var block = $(
+          '<div class="torrent-item__body-grid">' +
+            '<div class="torrent-item__main-col">' +
+              '<div class="torrent-item__top-row">' + topHtml + '</div>' +
+              '<div class="torrent-item__sub-row">' + subHtml + '</div>' +
+              '<div class="torrent-item__raw-name">' + rawTitle + '</div>' +
+            '</div>' +
+            '<div class="torrent-item__meta-col">' + metaHtml + '</div>' +
+          '</div>'
+        );
+        it.append(block);
+      });
+    }
+
+    function checkPage() {
+      var active = Lampa.Activity.active();
+      if (!active || !active.activity) return;
+      var render = active.activity.render();
+      if (!render || !render.length) return;
+
+      var explorer = render.hasClass('explorer') ? render : render.find('.explorer').first();
+      if (!explorer.length) return;
+
+      var torrentItems = explorer.find('.torrent-item');
+      if (torrentItems.length) {
+        if (!explorer.hasClass('nova-torrent-page')) {
+          explorer.addClass('nova-torrent-page');
+        }
+        restyleItems(explorer);
+      }
+    }
+
+    setInterval(checkPage, 250);
+  }
+
   function start() {
+    hookTorrentPage();
     settings();
     hookLogo();
     addCSS();
@@ -5344,7 +5523,6 @@
     });
 
     Lampa.Controller.listener.follow('toggle', function (e) {
-      if (novaTorrentController(e)) return;
       if (e.name !== 'content') return;
       var target = activeNode();
       if (target && target !== observed) {
@@ -7146,209 +7324,6 @@
     Lampa.SettingsApi.addParam({ component: 'nova_plus', param: { name: WIDE_META_KEY, type: 'trigger', default: true }, field: { name: label('nova_plus_set_meta'), description: label('nova_plus_set_meta_descr') }, onChange: function () { redraw(); } });
     Lampa.SettingsApi.addParam({ component: 'nova_plus', param: { name: WIDE_POS_KEY, type: 'select', values: { top: label('nova_plus_pos_top'), bottom: label('nova_plus_pos_bottom') }, default: 'top' }, field: { name: label('nova_plus_set_pos'), description: label('nova_plus_set_pos_descr') }, onChange: function () { redraw(); } });
   }
-
-  var novaTorrentRoot = null;
-  var novaTorrentHero = null;
-  var novaTorrentStamp = '';
-  var novaTorrentHeadHidden = false;
-
-  function novaTorrentClean() {
-    if (novaTorrentHero) {
-      novaTorrentHero.find('img').each(function () { this.onload = this.onerror = null; });
-      novaTorrentHero.remove();
-    }
-    if (novaTorrentRoot) {
-      novaTorrentRoot.removeClass('nova-plus-torrents nova-plus-torrents--wide nova-plus-torrents--grid');
-      var head = novaTorrentRoot.find('.explorer__files-head').first();
-      if (novaTorrentHeadHidden && !head.children().length) head.addClass('hide');
-    }
-    novaTorrentRoot = null;
-    novaTorrentHero = null;
-    novaTorrentStamp = '';
-    novaTorrentHeadHidden = false;
-  }
-
-  function novaTorrentImage(path, size) {
-    if (!path || typeof path !== 'string') return '';
-    if (/^(https?:)?\/\//i.test(path)) return path;
-    if (path.charAt(0) !== '/') return '';
-    try {
-      if (Lampa.TMDB.image) return Lampa.TMDB.image(path, size || 'w1280');
-      if (Lampa.TMDB.img) return Lampa.TMDB.img(path, size || 'w1280');
-    } catch (e) {}
-    return '';
-  }
-
-  function novaTorrentArt(hero, card) {
-    var urls = [];
-    [card.backdrop_path, card.background_image, card.background, card.poster_path, card.img].forEach(function (path) {
-      var url = novaTorrentImage(path);
-      if (url && urls.indexOf(url) === -1) urls.push(url);
-    });
-    if (!urls.length) return;
-    var img = hero.find('.nova-torrent-hero__art')[0];
-    var index = 0;
-    img.onload = function () { hero.addClass('nova-torrent-hero--loaded'); };
-    img.onerror = function () {
-      hero.removeClass('nova-torrent-hero--loaded');
-      if (++index < urls.length) img.src = urls[index];
-      else { img.onload = img.onerror = null; img.removeAttribute('src'); }
-    };
-    img.src = urls[0];
-  }
-
-  function novaTorrentMakeHero(box, card, current) {
-    var hero = $('<section class="nova-torrent-hero"><img class="nova-torrent-hero__art" alt="" aria-hidden="true"><div class="nova-torrent-hero__shade"></div><div class="nova-torrent-hero__content"><div class="nova-torrent-hero__meta"></div><h1 class="nova-torrent-hero__title"></h1><div class="nova-torrent-hero__genres"></div><div class="nova-torrent-hero__overview"></div></div></section>');
-    var title = card.name || card.title || current.search || '';
-    hero.find('.nova-torrent-hero__title').text(title);
-    var meta = [];
-    var rate = parseFloat(card.vote_average);
-    if (isFinite(rate) && rate > 0) meta.push('\u2605 ' + rate.toFixed(1));
-    var date = String(card.first_air_date || card.release_date || '');
-    if (/^\d{4}/.test(date) && date.slice(0, 4) !== '0000') meta.push(date.slice(0, 4));
-    var country = box.find('.explorer-card__head-create').first().text().replace(/^\s*\d{4}\s*[-\u2013\u2014]\s*/, '').trim();
-    if (country && !/^\d{4}$/.test(country)) meta.push(country);
-    var age = box.find('.explorer-card__head-age').first().text().trim();
-    if (age) meta.push(age);
-    hero.find('.nova-torrent-hero__meta').text(meta.join('  \u00b7  '));
-    var genres = box.find('.explorer-card__genres').first().text().trim();
-    if (!genres && card.genres) genres = card.genres.map(function (g) { return g.name || ''; }).filter(Boolean).join(', ');
-    hero.find('.nova-torrent-hero__genres').text(genres);
-    hero.find('.nova-torrent-hero__overview').text(card.overview || '');
-    if (artEnabled()) novaTorrentArt(hero, card);
-    if (logoOn()) {
-      logoFetch(card, function (path) {
-        if (!path || !novaTorrentHero || novaTorrentHero[0] !== hero[0]) return;
-        var url = novaTorrentImage(path, 'w500');
-        if (!url) return;
-        var logo = $('<img class="nova-torrent-hero__logo">').attr('alt', title);
-        logo[0].onload = function () {
-          if (!novaTorrentHero || novaTorrentHero[0] !== hero[0]) return;
-          hero.addClass('nova-torrent-hero--logo');
-        };
-        logo[0].onerror = function () { logo.remove(); };
-        hero.find('.nova-torrent-hero__title').before(logo);
-        logo.attr('src', url);
-      });
-    }
-    return hero;
-  }
-
-  function novaTorrentSync() {
-    var current, box;
-    try {
-      current = Lampa.Activity.active();
-      box = current && current.activity ? $(current.activity.render()) : $();
-      if (!box.hasClass('explorer')) box = box.find('.explorer').first();
-    } catch (e) { box = $(); }
-    var torrent = !!(box.length && (current.component === 'torrents' || box.find('.torrent-item').length));
-    if (!enabled() || !torrent) {
-      if (novaTorrentRoot) novaTorrentClean();
-      return torrent;
-    }
-    var head = box.find('.explorer__files-head').first();
-    if (!head.length) return true;
-    if (!novaTorrentRoot || novaTorrentRoot[0] !== box[0]) {
-      novaTorrentClean();
-      novaTorrentRoot = box;
-      novaTorrentHeadHidden = head.hasClass('hide');
-    }
-    if (!document.getElementById('nova_plus_torrent_style')) {
-      $('<style id="nova_plus_torrent_style"></style>').text(NOVA_TORRENT_CSS).appendTo('head');
-    }
-    box.addClass('nova-plus-torrents');
-    box.toggleClass('nova-plus-torrents--wide', modeWide());
-    box.toggleClass('nova-plus-torrents--grid', modeWide() && get('nova_plus_layout', 'grid') !== 'row');
-    var card = current.movie || current.card || {};
-    var stamp = [card.id || '', card.name || card.title || current.search || '', card.backdrop_path || '', card.overview || '', novaMode(), heroEnabled(), artEnabled(), logoOn(), get('nova_plus_layout', 'grid')].join('|');
-    var changed = stamp !== novaTorrentStamp || (heroEnabled() && (!novaTorrentHero || novaTorrentHero.parent()[0] !== head[0]));
-    if (changed) {
-      novaTorrentStamp = stamp;
-      if (novaTorrentHero) {
-        novaTorrentHero.find('img').each(function () { this.onload = this.onerror = null; });
-        novaTorrentHero.remove();
-      }
-      novaTorrentHero = null;
-      if (heroEnabled()) {
-        novaTorrentHero = novaTorrentMakeHero(box, card, current);
-        head.prepend(novaTorrentHero).removeClass('hide');
-        var cachedLogo = logoPeek(card);
-        if (cachedLogo && !novaTorrentHero.find('.nova-torrent-hero__logo').length) {
-          var cachedUrl = novaTorrentImage(cachedLogo, 'w500');
-          if (cachedUrl) {
-            var logo = $('<img class="nova-torrent-hero__logo">').attr('alt', card.name || card.title || '');
-            var targetHero = novaTorrentHero;
-            logo[0].onload = function () { targetHero.addClass('nova-torrent-hero--logo'); };
-            logo[0].onerror = function () { logo.remove(); };
-            targetHero.find('.nova-torrent-hero__title').before(logo);
-            logo.attr('src', cachedUrl);
-          }
-        }
-      }
-      try { if (Lampa.Layer && Lampa.Layer.update) Lampa.Layer.update(box); } catch (e) {}
-    }
-    return true;
-  }
-
-  function novaTorrentController(e) {
-    if (!e || e.name !== 'explorer' || !novaTorrentRoot || !enabled()) return false;
-    var active;
-    try { active = Lampa.Activity.active(); } catch (err) { return false; }
-    if (!active || !active.activity) return false;
-    var box = $(active.activity.render());
-    if (!box.hasClass('explorer')) box = box.find('.explorer').first();
-    if (box[0] !== novaTorrentRoot[0]) return false;
-    var first = novaTorrentRoot.find('.explorer__files-head .selector').filter(function () {
-      return !$(this).closest('.hide').length && $(this).css('display') !== 'none';
-    }).first();
-    Lampa.Controller.toggle('content');
-    if (first.length) Lampa.Controller.collectionFocus(first[0], novaTorrentRoot[0]);
-    return true;
-  }
-
-  var NOVA_TORRENT_CSS = [
-    '.nova-plus-torrents{--nt-text:oklch(96% .008 110);--nt-muted:oklch(80% .012 110);--nt-surface:oklch(32% .012 110 / .75);--nt-chip:oklch(53% .012 110 / .65);color:rgb(242,244,237);color:var(--nt-text)}',
-    '.nova-plus-torrents .explorer__left{display:none!important}.nova-plus-torrents .explorer__files{width:100%;min-width:0}',
-    '.nova-plus-torrents .explorer__files-head{padding:.8em 1.4em 0;line-height:1.4}',
-    '.nova-plus-torrents .nova-torrent-hero{position:relative;isolation:isolate;overflow:hidden;border-radius:1em;min-width:0;height:14em;max-height:31vh;margin-bottom:1em;background:rgb(40,43,38);background:oklch(27% .01 110)}',
-    '.nova-plus-torrents .nova-torrent-hero__art{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 35%;opacity:0}',
-    '.nova-plus-torrents .nova-torrent-hero--loaded .nova-torrent-hero__art{opacity:1}',
-    '.nova-plus-torrents .nova-torrent-hero__shade{position:absolute;inset:0;background:linear-gradient(90deg,rgba(19,22,18,.85),rgba(19,22,18,.14)),linear-gradient(0deg,rgba(19,22,18,.8),rgba(19,22,18,.05) 80%)}',
-    '.nova-plus-torrents .nova-torrent-hero__content{position:relative;display:flex;flex-direction:column;justify-content:flex-end;box-sizing:border-box;height:100%;padding:1.3em 1.6em;max-width:70em}',
-    '.nova-plus-torrents .nova-torrent-hero__meta{font-size:1em;font-weight:600;letter-spacing:.015em;margin-bottom:.55em;font-variant-numeric:tabular-nums}',
-    '.nova-plus-torrents .nova-torrent-hero__title{font-size:2.4em;font-weight:700;line-height:1.1;margin:0 0 .2em;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow-wrap:break-word}',
-    '.nova-plus-torrents .nova-torrent-hero__logo{display:none;max-width:85%;max-height:5em;object-fit:contain;object-position:left center;align-self:flex-start;margin:0 0 .6em}',
-    '.nova-plus-torrents .nova-torrent-hero--logo .nova-torrent-hero__logo{display:block}.nova-plus-torrents .nova-torrent-hero--logo .nova-torrent-hero__title{display:none}',
-    '.nova-plus-torrents .nova-torrent-hero__genres{font-size:.95em;color:rgb(215,218,207);color:var(--nt-muted);margin:.15em 0 .55em}',
-    '.nova-plus-torrents .nova-torrent-hero__overview{font-size:1em;line-height:1.45;max-width:74ch;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}',
-    '.nova-plus-torrents--wide .explorer__files-head{display:flex;align-items:center;flex-wrap:wrap;column-gap:1.4em}',
-    '.nova-plus-torrents--wide .nova-torrent-hero{flex:0 0 41%;height:16em;max-height:33vh;margin-bottom:.9em}',
-    '.nova-plus-torrents--wide .explorer__files-head> :not(.nova-torrent-hero){flex:1 1 45%;min-width:0;margin-bottom:.9em}',
-    '.nova-plus-torrents--wide .nova-torrent-hero__content{padding:1.1em 1.3em}.nova-plus-torrents--wide .nova-torrent-hero__title{font-size:2em}',
-    '.nova-plus-torrents .explorer__files-head .torrent-filter{display:flex;flex-wrap:wrap;gap:.5em;white-space:normal;margin:0;padding:.2em}',
-    '.nova-plus-torrents .explorer__files-head .torrent-filter>.simple-button{margin:0;min-height:2.4em;box-sizing:border-box;max-width:100%;font-size:1em;border:1px solid rgba(231,236,223,.16);border-radius:.65em}',
-    '.nova-plus-torrents .explorer__files-head .simple-button:not(.focus){background:rgba(179,187,164,.17);color:inherit}',
-    '.nova-plus-torrents .explorer__files-head .simple-button div{white-space:normal;overflow-wrap:anywhere}',
-    '.nova-plus-torrents .torrent-list{padding:1em 1.4em 2em}',
-    '.nova-plus-torrents .torrent-item{box-sizing:border-box;min-width:0;padding:1.15em 1.3em;background:rgba(160,167,148,.13);border:1px solid rgba(227,234,216,.12);border-radius:.9em;line-height:1.4;margin:0 0 .85em}',
-    '.nova-plus-torrents .torrent-item+.torrent-item{margin-top:0}.nova-plus-torrents .torrent-item--popular{background:rgba(181,191,162,.22)}',
-    '.nova-plus-torrents .torrent-item__title{font-size:1.25em;font-weight:500;line-height:1.35;word-break:normal;overflow-wrap:anywhere;white-space:normal;overflow:visible;max-height:none;-webkit-line-clamp:unset}',
-    '.nova-plus-torrents .torrent-item__ffprobe:not(.hide){display:flex;flex-wrap:wrap;align-items:center;gap:.45em;padding-top:.7em}',
-    '.nova-plus-torrents .torrent-item__ffprobe>div{float:none;max-width:100%;box-sizing:border-box;white-space:normal;overflow-wrap:anywhere;margin:0;border-radius:.35em;font-size:.9em;padding:.3em .55em;background:rgba(180,188,165,.2)}',
-    '.nova-plus-torrents .torrent-item__ffprobe::after{display:none}.nova-plus-torrents .torrent-item__ffprobe>.m-general{font-size:1em;outline:none;padding:0;border:1px solid rgba(223,232,208,.25);background:transparent}',
-    '.nova-plus-torrents .torrent-item__ffprobe>.m-general>div:nth-child(1){font-size:1em;padding:.35em .6em}.nova-plus-torrents .torrent-item__ffprobe>.m-general>div:nth-child(2){padding:.35em .6em}',
-    '.nova-plus-torrents .torrent-item__details{display:flex;flex-wrap:wrap;align-items:center;gap:.45em .8em;margin-top:.9em;font-size:.9em;line-height:1.5;white-space:normal;font-variant-numeric:tabular-nums;color:rgb(207,213,195);color:var(--nt-muted)}',
-    '.nova-plus-torrents .torrent-item__details>div{margin:0!important;max-width:100%}.nova-plus-torrents .torrent-item__tracker{flex:1 1 12em;width:auto;white-space:normal;overflow:visible;text-overflow:clip;overflow-wrap:anywhere}',
-    '.nova-plus-torrents .torrent-item__seeds>span{color:rgb(107,225,172);color:oklch(82% .13 160)}.nova-plus-torrents .torrent-item__grabs>span{color:rgb(125,201,243);color:oklch(80% .10 235)}',
-    '.nova-plus-torrents .torrent-item__size{background:rgba(105,206,160,.14);color:rgb(135,230,183);color:oklch(86% .10 160);padding:.25em .55em;border:1px solid rgba(105,206,160,.3);border-radius:.4em;white-space:nowrap}',
-    '.nova-plus-torrents .torrent-item__stat{background:rgba(20,25,17,.2);overflow-wrap:anywhere}',
-    '.nova-plus-torrents .torrent-item.focus{outline:.16em solid rgb(237,241,229);outline-offset:.16em;background:rgba(181,191,162,.24)}.nova-plus-torrents .torrent-item.focus::after{display:none}',
-    '.nova-plus-torrents .torrent-item:focus-visible{outline:.16em solid rgb(237,241,229);outline-offset:.16em}',
-    '.nova-plus-torrents .torrent-item__viewed{left:auto;right:.6em;top:-.5em}',
-    '@media(min-width:1180px){.nova-plus-torrents--grid .torrent-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1em;align-items:start}.nova-plus-torrents--grid .torrent-list>.torrent-item{margin:0}.nova-plus-torrents--grid .torrent-list>:not(.torrent-item){grid-column:1/-1}}',
-    '@media(max-width:700px){.nova-plus-torrents .explorer__files-head{display:block;padding:.5em .8em 0}.nova-plus-torrents .nova-torrent-hero{height:12em;max-height:28vh;margin-bottom:.6em}.nova-plus-torrents .nova-torrent-hero__content{padding:.9em 1em}.nova-plus-torrents .nova-torrent-hero__title{font-size:1.7em}.nova-plus-torrents .nova-torrent-hero__meta{font-size:.85em}.nova-plus-torrents .nova-torrent-hero__overview{display:none}.nova-plus-torrents .torrent-list{padding:.8em .8em 1.5em}.nova-plus-torrents .torrent-item{padding:1em}.nova-plus-torrents .torrent-item__title{font-size:1.1em}.nova-plus-torrents .torrent-item__tracker{flex-basis:100%}.nova-plus-torrents .explorer__files-head .torrent-filter>.simple-button{min-height:44px}}',
-    '@media(max-height:550px){.nova-plus-torrents .nova-torrent-hero{height:9em;max-height:26vh}.nova-plus-torrents .nova-torrent-hero__overview,.nova-plus-torrents .nova-torrent-hero__genres{display:none}.nova-plus-torrents .nova-torrent-hero__title{font-size:1.6em}.nova-plus-torrents .nova-torrent-hero__logo{max-height:3em}}'
-  ].join('');
 
   var LOGO_CSS = ".nova-plus-root .nova-hero__title--logo>img.nova-logo--edge{-webkit-filter:drop-shadow(0 0 .02em rgba(255,255,255,.9)) drop-shadow(0 0 .06em rgba(255,255,255,.45)) drop-shadow(0 .04em .12em rgba(0,0,0,.5));filter:drop-shadow(0 0 .02em rgba(255,255,255,.9)) drop-shadow(0 0 .06em rgba(255,255,255,.45)) drop-shadow(0 .04em .12em rgba(0,0,0,.5))}";
 
