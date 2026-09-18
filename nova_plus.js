@@ -7244,7 +7244,10 @@
       });
     } catch (e) {}
   }
-})();\n\n// --- nova_torrents module ---\n(function () {
+})();
+
+// --- nova_torrents module ---
+(function () {
   'use strict';
 
   if (window.nova_plus_tor) return;
@@ -7638,4 +7641,4 @@
       document.addEventListener('lampa', tor_ready);
     }
   } catch (e) {}
-})();\n
+})();
