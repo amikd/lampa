@@ -7244,10 +7244,7 @@
       });
     } catch (e) {}
   }
-})();
-
-// --- nova_torrents module ---
-(function () {
+})();\n\n// --- nova_torrents module ---\n(function () {
   'use strict';
 
   if (window.nova_plus_tor) return;
@@ -7268,9 +7265,9 @@
       en: 'Torrents page'
     },
     nova_plus_set_tor_descr: {
-      ru: 'Хиро-постер и горизонтальные фильтры под ним, торренты списком',
-      uk: 'Хіро-постер та горизонтальні фільтри під ним, торенти списком',
-      en: 'Hero poster with horizontal filters below, torrents as a list'
+      ru: 'Хиро-постер и вертикальные фильтры под ним, торренты списком',
+      uk: 'Хіро-постер та вертикальні фільтри під ним, торенти списком',
+      en: 'Hero poster with vertical filters below, torrents as a list'
     }
   };
 
@@ -7283,9 +7280,13 @@
     '.explorer.nova-plus-tor .watched-history{display:none!important}',
     '.explorer.nova-plus-tor .explorer-card{padding:0!important}',
     '.explorer.nova-plus-tor .explorer-card__body{padding:0!important}',
-    '.explorer.nova-plus-tor .explorer-card__descr{font-size:1em;line-height:1.45;opacity:.55;overflow:hidden;display:-webkit-box;-webkit-line-clamp:5;-webkit-box-orient:vertical;margin-top:.6em}',
-    '.explorer.nova-plus-tor .explorer__left{-webkit-flex:0 0 41%!important;-ms-flex:0 0 41%!important;flex:0 0 41%!important;width:41%!important;max-width:41%!important;padding-right:1.6em!important}',
-    '.explorer.nova-plus-tor .explorer__files{-webkit-flex:1 1 0%!important;-ms-flex:1 1 0%!important;flex:1 1 0%!important;width:59%!important;min-width:0!important;padding-top:.05em!important}',
+    '.explorer.nova-plus-tor .explorer-card__descr{font-size:1em;line-height:1.45;opacity:.55;overflow:hidden;display:-webkit-box;-webkit-line-clamp:5;-webkit-box-orient:vertical;margin-top:.8em}',
+    '.explorer.nova-plus-tor .explorer__left{-webkit-flex:0 0 41%!important;-ms-flex:0 0 41%!important;flex:0 0 41%!important;width:41%!important;max-width:41%!important;padding:0 1.6em 0 0!important}',
+    '.explorer.nova-plus-tor .explorer__files{-webkit-flex:1 1 0%!important;-ms-flex:1 1 0%!important;flex:1 1 0%!important;width:59%!important;min-width:0!important;padding:0 1.5em 0 0.8em!important;overflow:visible!important}',
+    '.explorer.nova-plus-tor .explorer__files-body{overflow:visible!important}',
+    '.explorer.nova-plus-tor .explorer__files-body .scroll{overflow:visible!important}',
+    '.explorer.nova-plus-tor .explorer__files-body .scroll__content{overflow:visible!important}',
+    '.explorer.nova-plus-tor .explorer__files-body .scroll__body{overflow:visible!important;padding-top:.4em!important;padding-left:.8em!important;padding-right:.8em!important}',
     '.explorer.nova-plus-tor .nova-tor-hero{position:relative;overflow:hidden;-webkit-border-radius:.95em;border-radius:.95em;margin:0 0 .9em 0;background:rgba(255,255,255,.06);min-height:0}',
     '.explorer.nova-plus-tor .nova-tor-hero__bg{position:relative;width:100%;padding-top:58.5%;overflow:hidden}',
     '.explorer.nova-plus-tor .nova-tor-hero__bg img{position:absolute;top:0;left:0;width:100%;height:100%;-o-object-fit:cover;object-fit:cover;opacity:0;-webkit-transition:opacity .35s;transition:opacity .35s}',
@@ -7293,23 +7294,23 @@
     '.explorer.nova-plus-tor .nova-tor-hero__shade{position:absolute;top:0;left:0;right:0;bottom:0;background:-webkit-linear-gradient(bottom,rgba(10,11,17,.95) 0%,rgba(10,11,17,.56) 48%,rgba(10,11,17,0) 100%);background:linear-gradient(0deg,rgba(10,11,17,.95) 0%,rgba(10,11,17,.56) 48%,rgba(10,11,17,0) 100%)}',
     '.explorer.nova-plus-tor .nova-tor-hero__body{position:absolute;left:0;right:0;bottom:0;padding:1.05em 1.15em .9em 1.15em;max-width:100%;display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-flex-direction:column;-ms-flex-direction:column;flex-direction:column}',
     '.explorer.nova-plus-tor .nova-tor-hero__title{font-size:1.68em;font-weight:700;line-height:1.15;margin-bottom:.42em;overflow:hidden;display:-webkit-box;-webkit-line-clamp:1;max-width:72%}',
-    '.explorer.nova-plus-tor .nova-tor-hero__title--logo{width:100%;max-width:100%;text-align:center}',
+    '.explorer.nova-plus-tor .nova-tor-hero__title--logo{width:100%!important;max-width:100%!important;text-align:center!important}',
     '.explorer.nova-plus-tor .nova-tor-hero__title--logo>img{display:block;margin-left:auto;margin-right:auto;max-height:2.9em;max-width:86%;width:auto;-webkit-filter:drop-shadow(0 .15em .4em rgba(0,0,0,.5));filter:drop-shadow(0 .15em .4em rgba(0,0,0,.5))}',
     '.explorer.nova-plus-tor .nova-tor-hero__meta{position:absolute;top:.7em;right:.85em;left:auto;bottom:auto;z-index:3;margin:0;font-size:1em;display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-flex-wrap:nowrap;-ms-flex-wrap:nowrap;flex-wrap:nowrap;-webkit-align-items:center;-ms-flex-align:center;align-items:center;-webkit-justify-content:flex-end;-ms-flex-pack:end;justify-content:flex-end;max-width:62%}',
     '.explorer.nova-plus-tor .nova-tor-hero__meta>*{margin:0 0 0 .9em;padding:0;opacity:.92;white-space:nowrap;background:none!important;-webkit-box-shadow:none!important;box-shadow:none!important;text-shadow:0 .08em .28em rgba(0,0,0,.9)}',
     '.explorer.nova-plus-tor .nova-tor-hero__meta>div.nova-tor-hero__rate{opacity:1;font-weight:600}',
     '.explorer.nova-plus-tor .nova-tor-hero__meta>div.nova-tor-hero__age{opacity:.9;padding:.1em .4em;border-radius:.3em;background:rgba(255,255,255,.15);box-shadow:none!important}',
     '.explorer.nova-plus-tor .explorer__files-head{position:static!important;display:block!important;width:100%!important;height:auto!important;padding:0!important;margin:0 0 .9em 0!important;background:none!important;border:0!important}',
-    '.explorer.nova-plus-tor .explorer__files-head>div{display:-webkit-flex!important;display:-ms-flexbox!important;display:flex!important;-webkit-flex-direction:row!important;-ms-flex-direction:row!important;flex-direction:row!important;-webkit-flex-wrap:wrap!important;-ms-flex-wrap:wrap!important;flex-wrap:wrap!important;-webkit-align-items:center!important;-ms-flex-align:center!important;align-items:center!important;gap:.45em!important;margin:0!important;padding:0!important}',
-    '.explorer.nova-plus-tor .explorer__files-head .simple-button{display:-webkit-inline-flex!important;display:-ms-inline-flexbox!important;display:inline-flex!important;-webkit-align-items:center!important;-ms-flex-align:center!important;align-items:center!important;width:auto!important;min-width:0!important;margin:0!important;padding:.42em .85em!important;-webkit-border-radius:.6em!important;border-radius:.6em!important;background:rgba(255,255,255,.08)!important;font-size:.95em!important;line-height:1.25!important;white-space:nowrap!important;overflow:hidden!important;border:0!important;-webkit-box-shadow:inset 0 0 0 .08em rgba(255,255,255,.06)!important;box-shadow:inset 0 0 0 .08em rgba(255,255,255,.06)!important}',
+    '.explorer.nova-plus-tor .explorer__files-head>div{display:-webkit-flex!important;display:-ms-flexbox!important;display:flex!important;-webkit-flex-direction:column!important;-ms-flex-direction:column!important;flex-direction:column!important;-webkit-align-items:stretch!important;-ms-flex-align:stretch!important;align-items:stretch!important;gap:.45em!important;margin:0!important;padding:0!important}',
+    '.explorer.nova-plus-tor .explorer__files-head .simple-button{display:-webkit-flex!important;display:-ms-flexbox!important;display:flex!important;-webkit-align-items:center!important;-ms-flex-align:center!important;align-items:center!important;width:100%!important;min-width:0!important;margin:0!important;padding:.55em 1em!important;-webkit-border-radius:.65em!important;border-radius:.65em!important;background:rgba(255,255,255,.08)!important;font-size:1em!important;line-height:1.3!important;white-space:nowrap!important;overflow:hidden!important;border:0!important;-webkit-box-shadow:inset 0 0 0 .08em rgba(255,255,255,.06)!important;box-shadow:inset 0 0 0 .08em rgba(255,255,255,.06)!important}',
     '.explorer.nova-plus-tor .explorer__files-head .simple-button.focus{background:rgba(255,255,255,.2)!important;color:#fff!important;-webkit-box-shadow:inset 0 0 0 .09em rgba(255,255,255,.45), 0 .2em .7em rgba(0,0,0,.4)!important;box-shadow:inset 0 0 0 .09em rgba(255,255,255,.45), 0 .2em .7em rgba(0,0,0,.4)!important}',
-    '.explorer.nova-plus-tor .explorer__files-head .simple-button>svg{width:1.05em;height:1.05em;-webkit-flex-shrink:0;-ms-flex-negative:0;flex-shrink:0;margin:0 .45em 0 0}',
-    '.explorer.nova-plus-tor .explorer__files-head .simple-button>span{-webkit-box-flex:0;-webkit-flex:0 1 auto;-ms-flex:0 1 auto;flex:0 1 auto;min-width:0;overflow:hidden;-o-text-overflow:ellipsis;text-overflow:ellipsis}',
-    '.explorer.nova-plus-tor .explorer__files-head .simple-button>div{-webkit-flex-shrink:0;-ms-flex-negative:0;flex-shrink:0;margin:0 0 0 .45em;padding:.12em .45em;-webkit-border-radius:.45em;border-radius:.45em;background:rgba(255,255,255,.14);font-size:.85em;overflow:hidden;-o-text-overflow:ellipsis;text-overflow:ellipsis}',
+    '.explorer.nova-plus-tor .explorer__files-head .simple-button>svg{width:1.15em;height:1.15em;-webkit-flex-shrink:0;-ms-flex-negative:0;flex-shrink:0;margin:0 .6em 0 0}',
+    '.explorer.nova-plus-tor .explorer__files-head .simple-button>span{-webkit-box-flex:1;-webkit-flex:1 1 auto;-ms-flex:1 1 auto;flex:1 1 auto;min-width:0;overflow:hidden;-o-text-overflow:ellipsis;text-overflow:ellipsis}',
+    '.explorer.nova-plus-tor .explorer__files-head .simple-button>div{-webkit-flex-shrink:0;-ms-flex-negative:0;flex-shrink:0;margin:0 0 0 .6em;padding:.15em .55em;-webkit-border-radius:.5em;border-radius:.5em;background:rgba(255,255,255,.14);font-size:.85em;overflow:hidden;-o-text-overflow:ellipsis;text-overflow:ellipsis}',
     '.explorer.nova-plus-tor .explorer__files-head .simple-button.focus>div{background:rgba(255,255,255,.25)}',
     '.explorer.nova-plus-tor .explorer__files-head .simple-button>div.hide{display:none!important}',
-    '.explorer.nova-plus-tor .torrent-list{display:block!important;padding:0!important}',
-    '.explorer.nova-plus-tor .torrent-item{position:relative;display:block!important;float:none!important;width:100%!important;margin:0 0 1em 0!important;padding:1em!important;background-color:rgba(0,0,0,0.3)!important;border-radius:0.3em!important;line-height:1.2!important;box-shadow:none!important;color:#fff!important}',
+    '.explorer.nova-plus-tor .torrent-list{display:block!important;padding:0!important;overflow:visible!important}',
+    '.explorer.nova-plus-tor .torrent-item{position:relative;display:block!important;float:none!important;width:100%!important;margin:0 0 1em 0!important;padding:1em!important;background-color:rgba(0,0,0,0.3)!important;border-radius:0.3em!important;line-height:1.2!important;box-shadow:none!important;color:#fff!important;box-sizing:border-box!important}',
     '.explorer.nova-plus-tor .torrent-item + .torrent-item{margin-top:1em!important}',
     '.explorer.nova-plus-tor .torrent-item.focus{background-color:rgba(0,0,0,0.3)!important;color:#fff!important}',
     '.explorer.nova-plus-tor .torrent-item.focus::after{content:""!important;position:absolute!important;top:-0.5em!important;left:-0.5em!important;right:-0.5em!important;bottom:-0.5em!important;border:0.3em solid #fff!important;border-radius:0.7em!important;z-index:2!important;pointer-events:none!important}',
@@ -7319,7 +7320,7 @@
     '.explorer.nova-plus-tor .torrent-item__tracker{margin-right:1em!important;overflow:hidden!important;text-overflow:ellipsis!important;flex-grow:1!important}',
     '.explorer.nova-plus-tor .torrent-item__size{background-color:#fff!important;border-radius:0.3em!important;color:#000!important;padding:0.3em 0.5em!important}',
     '.explorer.nova-plus-tor .torrent-item.focus .torrent-item__details{color:rgba(255,255,255,0.7)!important}',
-    '@media screen and (max-width:580px){.explorer.nova-plus-tor .explorer__left{width:100%!important;max-width:100%!important;padding-right:0!important}.explorer.nova-plus-tor .explorer__files{width:100%!important;max-width:100%!important}}'
+    '@media screen and (max-width:580px){.explorer.nova-plus-tor .explorer__left{width:100%!important;max-width:100%!important;padding-right:0!important}.explorer.nova-plus-tor .explorer__files{width:100%!important;max-width:100%!important;padding-right:0!important}}'
   ].join('');
 
   function torStyle() {
@@ -7377,6 +7378,88 @@
       (movie.background_image || movie.img || '');
   }
 
+  var tor_logo_cache = {};
+
+  function torLogoLang() {
+    var lang = String(torGet('language', 'ru') || 'ru').toLowerCase();
+    var map = { ua: 'uk', ukr: 'uk', rus: 'ru', eng: 'en', cn: 'zh', by: 'be' };
+    return map[lang] || lang;
+  }
+
+  function torLogoFetch(movie, done) {
+    if (!movie || !movie.id) return done('');
+    var id = movie.id;
+    var lang = torLogoLang();
+    var key = id + ':' + lang;
+    if (tor_logo_cache[key] !== undefined) return done(tor_logo_cache[key]);
+
+    var kind = String(movie.media_type || movie.type || '').toLowerCase();
+    if (kind !== 'tv' && kind !== 'movie') {
+      kind = (movie.number_of_seasons || movie.seasons || movie.first_air_date || movie.name) ? 'tv' : 'movie';
+    }
+
+    var langs = lang === 'en' ? 'en,null' : lang + ',en,null';
+    var url = '';
+    try {
+      url = Lampa.TMDB.api(kind + '/' + id + '/images?api_key=' + Lampa.TMDB.key() + '&include_image_language=' + langs);
+    } catch (e) { url = ''; }
+
+    if (!url) {
+      tor_logo_cache[key] = '';
+      return done('');
+    }
+
+    var net = null;
+    try { net = new Lampa.Reguest(); } catch (e) { net = null; }
+    if (!net) {
+      tor_logo_cache[key] = '';
+      return done('');
+    }
+
+    try { net.timeout(8000); } catch (e) {}
+    net.silent(url, function (answer) {
+      var list = answer && typeof answer === 'object' ? answer.logos : null;
+      var file = '';
+      if (list && list.length) {
+        for (var i = 0; i < list.length; i++) {
+          if (list[i] && list[i].iso_639_1 === lang && list[i].file_path) { file = list[i].file_path; break; }
+        }
+        if (!file) {
+          for (var j = 0; j < list.length; j++) {
+            if (list[j] && list[j].iso_639_1 === 'en' && list[j].file_path) { file = list[j].file_path; break; }
+          }
+        }
+        if (!file && list[0] && list[0].file_path) file = list[0].file_path;
+      }
+      tor_logo_cache[key] = file || '';
+      done(tor_logo_cache[key]);
+    }, function () {
+      tor_logo_cache[key] = '';
+      done('');
+    });
+  }
+
+  function torLogoDraw(slot, file, title) {
+    if (!slot || !slot.length) return;
+    if (!file) {
+      slot.removeClass('nova-tor-hero__title--logo').text(title);
+      return;
+    }
+    var src = '';
+    try { src = Lampa.TMDB.image('t/p/w780' + String(file).replace('.svg', '.png')); } catch (e) { src = ''; }
+    if (!src) {
+      slot.removeClass('nova-tor-hero__title--logo').text(title);
+      return;
+    }
+
+    var img = $('<img alt="">');
+    img.on('error', function () {
+      slot.removeClass('nova-tor-hero__title--logo').text(title);
+    });
+    img.attr('src', src);
+    slot.addClass('nova-tor-hero__title--logo').empty().append(img);
+  }
+
   function torRoot() {
     var act = torActive();
     if (!act || act.component !== 'torrents') return null;
@@ -7407,7 +7490,13 @@
 
     if (hero.attr('data-sign') !== sign) {
       hero.attr('data-sign', sign);
-      hero.find('.nova-tor-hero__title').text(title);
+      var titleSlot = hero.find('.nova-tor-hero__title');
+      titleSlot.text(title);
+
+      torLogoFetch(movie, function (logoFile) {
+        if (!hero.parent().length) return;
+        torLogoDraw(titleSlot, logoFile, title);
+      });
 
       var meta = hero.find('.nova-tor-hero__meta').empty();
 
@@ -7449,6 +7538,19 @@
     torFree(box);
   }
 
+  function torAlign(box) {
+    var head = box.find('.explorer__files-head').eq(0);
+    var files = box.find('.explorer__files').eq(0);
+    if (!head.length || !files.length) return;
+    var hero = box.find('.nova-tor-hero').eq(0);
+    if (!hero.length) return;
+
+    var headHeight = head.outerHeight(true) || 0;
+    if (headHeight > 0) {
+      files.css('padding-top', '0px');
+    }
+  }
+
   function torApply() {
     if (!torOn()) return;
 
@@ -7459,6 +7561,7 @@
     box.addClass(TOR_SCOPE);
     torHero(box, torMovie());
     torChips(box);
+    torAlign(box);
   }
 
   function torSoon(wait) {
@@ -7535,4 +7638,4 @@
       document.addEventListener('lampa', tor_ready);
     }
   } catch (e) {}
-})();
+})();\n
