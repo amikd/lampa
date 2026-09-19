@@ -6950,6 +6950,7 @@
   }
 })();
 
+
 (function () {
   'use strict';
 
@@ -6971,29 +6972,35 @@
       en: 'Torrents page'
     },
     nova_plus_set_tor_descr: {
-      ru: 'Хиро-постер и вертикальные кнопки под ним, торренты списком',
-      uk: 'Хіро-постер та вертикальні кнопки під ним, торенти списком',
-      en: 'Hero poster with vertical buttons below, torrents as a list'
+      ru: 'Хиро-постер и фильтры под ним по 2 в ряд, торренты списком',
+      uk: 'Хіро-постер та фільтри під ним по 2 в ряд, торенти списком',
+      en: 'Hero poster with 2-column filters below, torrents as a list'
     }
   };
 
   try { Lampa.Lang.add(TOR_OWN); } catch (e) {}
 
   var TOR_CSS = [
+    /* Скрываем ненужные элементы карточки Lampa */
     '.explorer.nova-plus-tor .explorer-card__head{display:none!important}',
     '.explorer.nova-plus-tor .explorer-card__title{display:none!important}',
     '.explorer.nova-plus-tor .explorer-card__genres{display:none!important}',
     '.explorer.nova-plus-tor .watched-history{display:none!important}',
     '.explorer.nova-plus-tor .explorer__files-body .watched-history, .explorer.nova-plus-tor .torrent-item--history, .explorer.nova-plus-tor .explorer-card__watched, .explorer.nova-plus-tor .explorer__files .watched{display:none!important}',
+
+    /* Колонка слева: сохраняем левый паддинг как в Онлайне! */
+    '.explorer.nova-plus-tor .explorer__left{padding:0 1.5em 0 1.5em!important;width:38%!important;-webkit-flex:0 0 38%!important;-ms-flex:0 0 38%!important;flex:0 0 38%!important;max-width:38%!important;box-sizing:border-box!important;overflow:visible!important}',
     '.explorer.nova-plus-tor .explorer-card{padding:0!important}',
     '.explorer.nova-plus-tor .explorer-card__body{padding:0!important}',
     '.explorer.nova-plus-tor .explorer-card__descr{font-size:1em;line-height:1.45;opacity:.55;overflow:hidden;display:-webkit-box;-webkit-line-clamp:5;-webkit-box-orient:vertical;margin-top:.8em}',
-    '.explorer.nova-plus-tor .explorer__left{-webkit-flex:0 0 41%!important;-ms-flex:0 0 41%!important;flex:0 0 41%!important;width:41%!important;max-width:41%!important;padding:0 1.6em 0 0!important;overflow:visible!important}',
-    '.explorer.nova-plus-tor .explorer__files{-webkit-flex:1 1 0%!important;-ms-flex:1 1 0%!important;flex:1 1 0%!important;width:59%!important;min-width:0!important;padding:0 1.5em 0 0.8em!important;overflow:visible!important}',
-    '.explorer.nova-plus-tor .explorer__files-body{overflow:visible!important}',
-    '.explorer.nova-plus-tor .explorer__files-body .scroll{overflow:visible!important}',
-    '.explorer.nova-plus-tor .explorer__files-body .scroll__content{overflow:visible!important}',
-    '.explorer.nova-plus-tor .explorer__files-body .scroll__body{overflow:visible!important;padding-top:.4em!important;padding-left:.8em!important;padding-right:.8em!important}',
+
+    /* Колонка справа: список файлов/раздач */
+    '.explorer.nova-plus-tor .explorer__files{padding:0 1.5em 0 .5em!important;width:62%!important;-webkit-flex:1 1 62%!important;-ms-flex:1 1 62%!important;flex:1 1 62%!important;min-width:0!important;box-sizing:border-box!important;overflow:hidden!important}',
+
+    /* ПРЯЧЕМ нативную шапку в правой колонке! Это предотвращает урезание высоты скролла в scroll.minus()! */
+    '.explorer.nova-plus-tor .explorer__files > .explorer__files-head{display:none!important;height:0!important;margin:0!important;padding:0!important;overflow:hidden!important}',
+
+    /* Хиро-постер */
     '.explorer.nova-plus-tor .nova-tor-hero{position:relative;overflow:hidden;-webkit-border-radius:.95em;border-radius:.95em;margin:0 0 .9em 0;background:rgba(255,255,255,.06);min-height:0}',
     '.explorer.nova-plus-tor .nova-tor-hero__bg{position:relative;width:100%;padding-top:58.5%;overflow:hidden}',
     '.explorer.nova-plus-tor .nova-tor-hero__bg img{position:absolute;top:0;left:0;width:100%;height:100%;-o-object-fit:cover;object-fit:cover;opacity:0;-webkit-transition:opacity .35s;transition:opacity .35s}',
@@ -7007,69 +7014,65 @@
     '.explorer.nova-plus-tor .nova-tor-hero__meta>*{margin:0 0 0 .9em;padding:0;opacity:.92;white-space:nowrap;background:none!important;-webkit-box-shadow:none!important;box-shadow:none!important;text-shadow:0 .08em .28em rgba(0,0,0,.9)}',
     '.explorer.nova-plus-tor .nova-tor-hero__meta>div.nova-tor-hero__rate{opacity:1;font-weight:600}',
     '.explorer.nova-plus-tor .nova-tor-hero__meta>div.nova-tor-hero__age{opacity:.9;padding:.1em .4em;border-radius:.3em;background:rgba(255,255,255,.15);box-shadow:none!important}',
-    '.explorer.nova-plus-tor .explorer__files-head{position:static!important;display:block!important;width:100%!important;height:auto!important;padding:0!important;margin:0 0 .9em 0!important;background:none!important;border:0!important}',
-    '.explorer.nova-plus-tor .explorer__files-head .scroll{width:100%!important;height:auto!important;overflow:visible!important}',
-    '.explorer.nova-plus-tor .explorer__files-head .scroll__content{width:100%!important;height:auto!important;overflow:visible!important}',
-    '.explorer.nova-plus-tor .explorer__files-head .scroll__body{width:100%!important;height:auto!important;transform:none!important;overflow:visible!important;display:block!important;padding:0!important;margin:0!important}',
-    '.explorer.nova-plus-tor .explorer__files-head .torrent-filter, .explorer.nova-plus-tor .explorer__files-head>div, .explorer.nova-plus-tor .explorer__files-head .scroll__body>div{display:-webkit-flex!important;display:-ms-flexbox!important;display:flex!important;-webkit-flex-direction:column!important;-ms-flex-direction:column!important;flex-direction:column!important;-webkit-align-items:stretch!important;-ms-flex-align:stretch!important;align-items:stretch!important;gap:.45em!important;width:100%!important;margin:0!important;padding:0!important}',
-    '.explorer.nova-plus-tor .explorer__files-head .simple-button{display:-webkit-flex!important;display:-ms-flexbox!important;display:flex!important;-webkit-align-items:center!important;-ms-flex-align:center!important;align-items:center!important;width:100%!important;height:auto!important;min-width:0!important;margin:0 0 .45em 0!important;padding:.55em 1em!important;-webkit-border-radius:.65em!important;border-radius:.65em!important;background:rgba(255,255,255,.08)!important;font-size:1em!important;line-height:1.3!important;white-space:nowrap!important;overflow:hidden!important;border:0!important;-webkit-box-shadow:inset 0 0 0 .08em rgba(255,255,255,.06)!important;box-shadow:inset 0 0 0 .08em rgba(255,255,255,.06)!important}',
-    '.explorer.nova-plus-tor .explorer__files-head .simple-button.focus{background:rgba(255,255,255,.2)!important;color:#fff!important;-webkit-box-shadow:inset 0 0 0 .09em rgba(255,255,255,.45), 0 .2em .7em rgba(0,0,0,.4)!important;box-shadow:inset 0 0 0 .09em rgba(255,255,255,.45), 0 .2em .7em rgba(0,0,0,.4)!important}',
-    '.explorer.nova-plus-tor .explorer__files-head .simple-button>svg{width:1.15em;height:1.15em;-webkit-flex-shrink:0;-ms-flex-negative:0;flex-shrink:0;margin:0 .6em 0 0}',
-    '.explorer.nova-plus-tor .explorer__files-head .simple-button>span{-webkit-box-flex:1;-webkit-flex:1 1 auto;-ms-flex:1 1 auto;flex:1 1 auto;min-width:0;overflow:hidden;-o-text-overflow:ellipsis;text-overflow:ellipsis}',
-    '.explorer.nova-plus-tor .explorer__files-head .simple-button>div{-webkit-flex-shrink:0;-ms-flex-negative:0;flex-shrink:0;margin:0 0 0 .6em;padding:.15em .55em;-webkit-border-radius:.5em;border-radius:.5em;background:rgba(255,255,255,.14);font-size:.85em;overflow:hidden;-o-text-overflow:ellipsis;text-overflow:ellipsis}',
-    '.explorer.nova-plus-tor .explorer__files-head .simple-button.focus>div{background:rgba(255,255,255,.25)}',
-    '.explorer.nova-plus-tor .explorer__files-head .simple-button>div.hide{display:none!important}',
+
+    /* Кнопки действий под хиро: сетка 2 в строку! */
+    '.explorer.nova-plus-tor .nova-tor-acts{display:-webkit-flex!important;display:-ms-flexbox!important;display:flex!important;-webkit-flex-wrap:wrap!important;-ms-flex-wrap:wrap!important;flex-wrap:wrap!important;gap:.55em!important;width:100%!important;margin:0 0 .9em 0!important;padding:0!important;box-sizing:border-box!important}',
+    '.explorer.nova-plus-tor .nova-tor-btn{display:-webkit-flex!important;display:-ms-flexbox!important;display:flex!important;-webkit-align-items:center!important;-ms-flex-align:center!important;align-items:center!important;-webkit-box-flex:0!important;-webkit-flex:0 0 calc(50% - 0.28em)!important;-ms-flex:0 0 calc(50% - 0.28em)!important;flex:0 0 calc(50% - 0.28em)!important;width:calc(50% - 0.28em)!important;max-width:calc(50% - 0.28em)!important;box-sizing:border-box!important;height:auto!important;min-width:0!important;margin:0!important;padding:.55em .8em!important;-webkit-border-radius:.65em!important;border-radius:.65em!important;background:rgba(255,255,255,.08)!important;font-size:.95em!important;line-height:1.25!important;white-space:nowrap!important;overflow:hidden!important;border:0!important;-webkit-box-shadow:inset 0 0 0 .08em rgba(255,255,255,.06)!important;box-shadow:inset 0 0 0 .08em rgba(255,255,255,.06)!important;cursor:pointer}',
+    '.explorer.nova-plus-tor .nova-tor-btn.focus{background:rgba(255,255,255,.2)!important;color:#fff!important;-webkit-box-shadow:inset 0 0 0 .09em rgba(255,255,255,.45), 0 .2em .7em rgba(0,0,0,.4)!important;box-shadow:inset 0 0 0 .09em rgba(255,255,255,.45), 0 .2em .7em rgba(0,0,0,.4)!important}',
+    '.explorer.nova-plus-tor .nova-tor-btn>svg{width:1.15em;height:1.15em;-webkit-flex-shrink:0;-ms-flex-negative:0;flex-shrink:0;margin:0 .5em 0 0}',
+    '.explorer.nova-plus-tor .nova-tor-btn>span{-webkit-box-flex:1;-webkit-flex:1 1 auto;-ms-flex:1 1 auto;flex:1 1 auto;min-width:0;overflow:hidden;-o-text-overflow:ellipsis;text-overflow:ellipsis}',
+    '.explorer.nova-plus-tor .nova-tor-btn>div{-webkit-flex-shrink:0;-ms-flex-negative:0;flex-shrink:0;margin:0 0 0 .4em;padding:.12em .45em;-webkit-border-radius:.45em;border-radius:.45em;background:rgba(255,255,255,.14);font-size:.82em;overflow:hidden;-o-text-overflow:ellipsis;text-overflow:ellipsis}',
+    '.explorer.nova-plus-tor .nova-tor-btn.focus>div{background:rgba(255,255,255,.25)}',
+    '.explorer.nova-plus-tor .nova-tor-btn>div.hide{display:none!important}',
+
+    /* Список торрентов */
     '.explorer.nova-plus-tor .torrent-list{display:block!important;padding:0!important;overflow:visible!important}',
-    '.explorer.nova-plus-tor .torrent-item{position:relative;display:block!important;float:none!important;width:100%!important;margin:0 0 1em 0!important;padding:1em!important;background-color:rgba(0,0,0,0.3)!important;border-radius:0.3em!important;line-height:1.2!important;box-shadow:none!important;color:#fff!important;box-sizing:border-box!important}',
+    '.explorer.nova-plus-tor .torrent-item{position:relative;display:block!important;float:none!important;width:100%!important;margin:0 0 1em 0!important;padding:1em!important;background-color:rgba(0,0,0,0.3)!important;border-radius:0.5em!important;line-height:1.2!important;box-shadow:none!important;color:#fff!important;box-sizing:border-box!important}',
     '.explorer.nova-plus-tor .torrent-item + .torrent-item{margin-top:1em!important}',
     '.explorer.nova-plus-tor .torrent-item.focus{background-color:rgba(0,0,0,0.3)!important;color:#fff!important}',
     '.explorer.nova-plus-tor .torrent-item.focus::after{content:""!important;position:absolute!important;top:-0.5em!important;left:-0.5em!important;right:-0.5em!important;bottom:-0.5em!important;border:0.3em solid #fff!important;border-radius:0.7em!important;z-index:2!important;pointer-events:none!important}',
     '.explorer.nova-plus-tor .torrent-item__title{font-size:1.3em!important;word-break:break-all!important;line-height:1.2!important;color:#fff!important;opacity:1!important}',
-    '.explorer.nova-plus-tor .torrent-item__details{display:-webkit-flex!important;display:flex!important;color:rgba(255,255,255,0.5)!important;margin-top:0.6em!important;font-weight:600!important;align-items:center!important;white-space:nowrap!important}',
-    '.explorer.nova-plus-tor .torrent-item__date{margin-right:1em!important}',
-    '.explorer.nova-plus-tor .torrent-item__tracker{margin-right:1em!important;overflow:hidden!important;text-overflow:ellipsis!important;flex-grow:1!important}',
-    '.explorer.nova-plus-tor .torrent-item__size{background:transparent!important;border-radius:0.4em!important;color:#fff!important;border:1px solid rgba(255,255,255,0.35)!important;padding:0.25em 0.6em!important;font-weight:600!important}',
-    '.explorer.nova-plus-tor .torrent-item.focus .torrent-item__details{color:rgba(255,255,255,0.7)!important}',
-    '@media screen and (max-width:900px),screen and (orientation:portrait){.explorer.nova-plus-tor{display:block!important}.explorer.nova-plus-tor .explorer__body{display:block!important}.explorer.nova-plus-tor .explorer__left{-webkit-flex:0 0 auto!important;-ms-flex:0 0 auto!important;flex:0 0 auto!important;width:100%!important;max-width:100%!important;padding:0!important}.explorer.nova-plus-tor .explorer__files{-webkit-flex:1 1 auto!important;-ms-flex:1 1 auto!important;flex:1 1 auto!important;width:100%!important;max-width:100%!important;padding:0!important}.explorer.nova-plus-tor .nova-tor-hero{margin:0 0 .8em 0}.explorer.nova-plus-tor .nova-tor-hero__bg{padding-top:56%}.explorer.nova-plus-tor .nova-tor-hero__body{padding:.9em .9em .8em .9em}.explorer.nova-plus-tor .nova-tor-hero__title{font-size:1.35em;max-width:100%}.explorer.nova-plus-tor .nova-tor-hero__title--logo>img{max-height:2.4em;max-width:78%}.explorer.nova-plus-tor .nova-tor-hero__meta{max-width:68%;font-size:.95em}.explorer.nova-plus-tor .explorer-card__descr{-webkit-line-clamp:3}.explorer.nova-plus-tor .explorer__files-head{margin:0 0 .75em 0!important}.explorer.nova-plus-tor .explorer__files-head .simple-button{padding:.5em .85em!important;margin:0 0 .4em 0!important}.explorer.nova-plus-tor .explorer__files-body .scroll__body{padding-left:0!important;padding-right:0!important}.explorer.nova-plus-tor .torrent-item{padding:.85em!important;margin:0 0 .7em 0!important}.explorer.nova-plus-tor .torrent-item__title{font-size:1.1em!important}.explorer.nova-plus-tor .torrent-item__details{-webkit-flex-wrap:wrap!important;-ms-flex-wrap:wrap!important;flex-wrap:wrap!important;white-space:normal!important}}'
-  ].join('');
+    '.explorer.nova-plus-tor .torrent-item__details{display:-webkit-flex!important;display:flex!important;color:rgba(255,255,255,0.5)!important;margin-top:0.8em!important;font-size:0.9em!important}',
+    '.explorer.nova-plus-tor .torrent-serial{margin-right:1em!important;background:rgba(255,255,255,0.2)!important;padding:0.4em 0.8em!important;border-radius:0.3em!important;color:#fff!important}',
+    '.explorer.nova-plus-tor .torrent-serial span{padding:0 0.2em!important}',
+    '.explorer.nova-plus-tor .torrent-serial span:empty{display:none!important}',
+    '.explorer.nova-plus-tor .torrent-item__tags{display:-webkit-flex!important;display:flex!important;-webkit-flex-wrap:wrap!important;flex-wrap:wrap!important;-webkit-align-items:center!important;align-items:center!important}',
+    '.explorer.nova-plus-tor .torrent-item__tag{margin-right:0.6em!important;margin-bottom:0.2em!important;padding:0.3em 0.6em!important;border-radius:0.3em!important;background:rgba(255,255,255,0.1)!important;color:#fff!important}',
+    '.explorer.nova-plus-tor .torrent-item__footer{display:-webkit-flex!important;display:flex!important;-webkit-justify-content:space-between!important;justify-content:space-between!important;-webkit-align-items:center!important;align-items:center!important;margin-top:0.8em!important;font-size:0.9em!important;color:rgba(255,255,255,0.6)!important}',
+    '.explorer.nova-plus-tor .torrent-item__tracker{color:rgba(255,255,255,0.4)!important}',
+    '.explorer.nova-plus-tor .torrent-item__seeds{margin-left:auto!important;margin-right:1em!important;color:#4caf50!important}',
+    '.explorer.nova-plus-tor .torrent-item__grabs{margin-right:1em!important;color:#2196f3!important}',
+    '.explorer.nova-plus-tor .torrent-item__size{color:#fff!important;font-weight:bold!important}',
 
-  function torStyle() {
-    try {
-      var node = document.getElementById(TOR_STYLE);
-      if (!node) {
-        node = document.createElement('style');
-        node.id = TOR_STYLE;
-        document.head.appendChild(node);
-      }
-      node.innerHTML = TOR_CSS;
-    } catch (e) {}
+    /* Адаптив для узких экранов и вертикальной ориентации */
+    '@media screen and (max-width:900px),screen and (orientation:portrait){',
+    '.explorer.nova-plus-tor{display:block!important;padding:0!important}',
+    '.explorer.nova-plus-tor .explorer__left{width:100%!important;max-width:100%!important;padding:1em!important;float:none!important}',
+    '.explorer.nova-plus-tor .explorer__files{width:100%!important;max-width:100%!important;padding:0 1em 1em 1em!important;float:none!important}',
+    '.explorer.nova-plus-tor .nova-tor-hero__bg{padding-top:56%}',
+    '.explorer.nova-plus-tor .nova-tor-btn{font-size:.9em!important;padding:.5em .7em!important}',
+    '}'
+  ].join('\n');
+
+  function torText(key) {
+    try { return Lampa.Lang.translate(key); } catch (e) { return key; }
   }
 
   function torGet(key, def) {
     try { return Lampa.Storage.get(key, def); } catch (e) { return def; }
   }
 
-  function torText(key) {
-    try { return Lampa.Lang.translate(key); } catch (e) { return key; }
-  }
-
   function torOn() {
     return torGet(TOR_ON_KEY, true) !== false && torGet(TOR_KEY, true) !== false;
   }
 
-  var TOR_IMG = /^\/[A-Za-z0-9._-]+\.(jpg|jpeg|png|webp|svg)$/i;
-
-  function torImage(path, size) {
-    if (!path || path === 'undefined') return '';
-    path = String(path);
-    if (/^https?:/i.test(path)) return path;
-    if (path.indexOf('/' + '/') === 0) {
-      var proto = 'https:';
-      try { proto = window.location.protocol === 'http:' ? 'http:' : 'https:'; } catch (e) {}
-      return proto + path;
-    }
-    if (!TOR_IMG.test(path)) return '';
-    try { return Lampa.TMDB.image('t/p/' + (size || 'w1280') + path); } catch (e) { return ''; }
+  function torStyle() {
+    if (document.getElementById(TOR_STYLE)) return;
+    var el = document.createElement('style');
+    el.id = TOR_STYLE;
+    el.type = 'text/css';
+    el.appendChild(document.createTextNode(TOR_CSS));
+    document.head.appendChild(el);
   }
 
   function torActive() {
@@ -7082,54 +7085,39 @@
   }
 
   function torArt(movie) {
-    return torImage(movie.backdrop_path, 'w1280') ||
-      torImage(movie.poster_path, 'w780') ||
-      torImage(movie.img, 'w1280') ||
-      (movie.background_image || movie.img || '');
+    if (!movie) return '';
+    var path = movie.backdrop_path || movie.poster_path || '';
+    if (!path) return '';
+    try { return Lampa.TMDB.image('t/p/w780' + path); } catch (e) { return ''; }
   }
 
   var tor_logo_cache = {};
 
-  function torLogoLang() {
-    var lang = String(torGet('language', 'ru') || 'ru').toLowerCase();
-    var map = { ua: 'uk', ukr: 'uk', rus: 'ru', eng: 'en', cn: 'zh', by: 'be' };
-    return map[lang] || lang;
-  }
-
   function torLogoFetch(movie, done) {
     if (!movie || !movie.id) return done('');
-    var id = movie.id;
-    var lang = torLogoLang();
-    var key = id + ':' + lang;
-    if (tor_logo_cache[key] !== undefined) return done(tor_logo_cache[key]);
+    var type = movie.media_type || (movie.first_air_date ? 'tv' : 'movie');
+    var key = type + '_' + movie.id;
+    if (typeof tor_logo_cache[key] !== 'undefined') return done(tor_logo_cache[key]);
 
-    var kind = String(movie.media_type || movie.type || '').toLowerCase();
-    if (kind !== 'tv' && kind !== 'movie') {
-      kind = (movie.number_of_seasons || movie.seasons || movie.first_air_date || movie.name) ? 'tv' : 'movie';
-    }
-
-    var langs = lang === 'en' ? 'en,null' : lang + ',en,null';
     var url = '';
     try {
-      url = Lampa.TMDB.api(kind + '/' + id + '/images?api_key=' + Lampa.TMDB.key() + '&include_image_language=' + langs);
-    } catch (e) { url = ''; }
-
+      url = Lampa.TMDB.api(type + '/' + movie.id + '/images?api_key=' + Lampa.TMDB.key() + '&include_image_language=ru,en,null');
+    } catch (e) {
+      url = '';
+    }
     if (!url) {
       tor_logo_cache[key] = '';
       return done('');
     }
 
-    var net = null;
-    try { net = new Lampa.Reguest(); } catch (e) { net = null; }
-    if (!net) {
-      tor_logo_cache[key] = '';
-      return done('');
-    }
-
-    try { net.timeout(8000); } catch (e) {}
-    net.silent(url, function (answer) {
-      var list = answer && typeof answer === 'object' ? answer.logos : null;
+    var net = new Lampa.Reguest();
+    net.timeout(5000);
+    net.silent(url, function (res) {
+      var list = (res && res.logos) || [];
       var file = '';
+      var lang = 'ru';
+      try { lang = Lampa.Storage.get('language', 'ru'); } catch (e) { lang = 'ru'; }
+
       if (list && list.length) {
         for (var i = 0; i < list.length; i++) {
           if (list[i] && list[i].iso_639_1 === lang && list[i].file_path) { file = list[i].file_path; break; }
@@ -7226,26 +7214,54 @@
     }
   }
 
-  function torFree(box) {
-    var node = box.find('.explorer__files-body .scroll')[0];
-    if (!node) return;
-    try {
-      if (node.mheight) node.mheight = null;
-      node.style.height = '';
-      Lampa.Layer.update(node);
-    } catch (e) {}
-  }
-
-  function torChips(box) {
+  function torButtons(box) {
     var head = box.find('.explorer__files-head').eq(0);
     if (!head.length) return;
-    if (head.closest('.explorer__left').length) return;
 
     var card = box.find('.explorer__card').eq(0);
     if (!card.length) return;
 
-    card.before(head);
-    torFree(box);
+    var acts = box.find('.nova-tor-acts').eq(0);
+    if (!acts.length) {
+      acts = $('<div class="nova-tor-acts"></div>');
+      card.before(acts);
+    }
+
+    /* Находим нативные кнопки фильтров: исключаем filter--back (кнопку назад) */
+    var nativeBtns = head.find('.simple-button').not('.filter--back');
+
+    nativeBtns.each(function (idx, orig) {
+      var $orig = $(orig);
+      var btn = acts.find('.nova-tor-btn[data-tor-idx="' + idx + '"]');
+      if (!btn.length) {
+        btn = $('<div class="nova-tor-btn selector" data-tor-idx="' + idx + '"></div>');
+        btn.on('hover:enter click', function () {
+          $orig.trigger('hover:enter').trigger('click');
+        });
+        acts.append(btn);
+      }
+
+      /* Синхронизируем содержимое кнопки (иконка, лейбл, подпись значения) */
+      var icon = $orig.find('svg').clone();
+      var labelText = $orig.children('span').text();
+      var valDiv = $orig.children('div');
+
+      btn.empty();
+      if (icon.length) btn.append(icon);
+      if (labelText) btn.append($('<span></span>').text(labelText));
+
+      if (valDiv.length && !valDiv.hasClass('hide') && valDiv.text()) {
+        btn.append($('<div></div>').text(valDiv.text()));
+      }
+    });
+
+    /* Удаляем лишние кнопки, если нативные исчезли */
+    acts.find('.nova-tor-btn').each(function () {
+      var idx = parseInt($(this).attr('data-tor-idx'), 10);
+      if (idx >= nativeBtns.length) {
+        $(this).remove();
+      }
+    });
   }
 
   function torApply() {
@@ -7257,7 +7273,7 @@
     torStyle();
     box.addClass(TOR_SCOPE);
     torHero(box, torMovie());
-    torChips(box);
+    torButtons(box);
   }
 
   function torSoon(wait) {
